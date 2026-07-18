@@ -1,0 +1,558 @@
+/* =========================================================
+   buscaminasexperto.es — sistema de diseño
+   Aplicado según informe-identidad-marca.md
+   ========================================================= */
+
+:root {
+  /* ---- Color de marca ---- */
+  --brand: #FF6F00;
+  --brand-dark: #D95F00;
+
+  /* ---- Wordmark ---- */
+  --word-dark: #2C2C2A;
+
+  /* ---- Paleta de peligro (números 1-8) ---- */
+  --n1: #1E6FD9;
+  --n2: #00897B;
+  --n3: #F2B705;
+  --n4: #E8720C;
+  --n5: #C0392B;
+  --n6: #6B1414;
+  --n7: #4A0E0E;
+  --n8: #200404;
+
+  /* ---- Elementos del tablero ---- */
+  --flag-pole: #6B6A64;
+  --flag-pennant: #E53935;
+  --mine-body: #2C2C2A;
+  --mine-spark: #E53935;
+
+  /* ---- Casillas: bisel ---- */
+  --tile-face: #E3E1DA;
+  --tile-light: #F4F3EF;
+  --tile-dark: #B4B2A9;
+
+  /* ---- Superficies de la web ---- */
+  --page-bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --border: #E4E2DA;
+  --border-strong: #C9C7C0;
+  --ink: #2C2C2A;
+  --ink-soft: #6B6A64;
+
+  /* ---- Aviso / tip ---- */
+  --tip-bg: #FFF4EB;
+
+  /* ---- Tipografía: familia única ---- */
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ---- Layout ---- */
+  --max-width: 1120px;
+  --radius-card: 12px;
+  --radius-tile: 8px;
+  --radius-btn: 8px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font);
+  margin: 0 0 .5em;
+}
+
+h1 { font-size: 32px; line-height: 40px; font-weight: 600; }
+h2 { font-size: 24px; line-height: 32px; font-weight: 600; }
+h3 { font-size: 18px; line-height: 26px; font-weight: 500; }
+
+p { margin: 0 0 1em; color: var(--ink-soft); }
+.caption { font-size: 13px; line-height: 18px; color: var(--ink-soft); }
+
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+:focus-visible {
+  outline: 3px solid var(--n1);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- Cabecera / navegación ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(250, 250, 248, 0.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.brand:hover { text-decoration: none; }
+
+.brand-mark { width: 32px; height: 32px; flex-shrink: 0; }
+
+.brand-word-dark { color: var(--word-dark); }
+.brand-word-accent { color: var(--brand); }
+
+.main-nav { display: flex; align-items: center; gap: 28px; }
+
+.main-nav a {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.main-nav a:hover { color: var(--brand); text-decoration: none; }
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-tile);
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.nav-toggle svg { width: 20px; height: 20px; }
+
+/* ---------- Botones ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--radius-btn);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover { text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+
+.btn-primary { background: var(--brand); color: #fff; }
+.btn-primary:hover { background: var(--brand-dark); }
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--brand);
+}
+.btn-secondary:hover { background: var(--tip-bg); }
+
+/* ---------- Casilla sin abrir (bisel) — usada como lenguaje de "bloqueado" ---------- */
+
+.tile-face {
+  background: var(--tile-face);
+  border-top: 2px solid var(--tile-light);
+  border-left: 2px solid var(--tile-light);
+  border-bottom: 2px solid var(--tile-dark);
+  border-right: 2px solid var(--tile-dark);
+  border-radius: var(--radius-tile);
+}
+
+/* ---------- Cinta "Próximamente" (color bandera, no color de marca) ---------- */
+
+.locked {
+  position: relative;
+  background: var(--tile-face);
+  border-top: 2px solid var(--tile-light);
+  border-left: 2px solid var(--tile-light);
+  border-bottom: 2px solid var(--tile-dark);
+  border-right: 2px solid var(--tile-dark);
+}
+
+.locked-flag {
+  position: absolute;
+  top: 14px;
+  right: -6px;
+  background: var(--flag-pennant);
+  color: #fff;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 5px 12px 5px 10px;
+  border-radius: 3px 0 0 3px;
+  z-index: 2;
+}
+.locked-flag::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 0;
+  border-style: solid;
+  border-width: 0 8px 12px 0;
+  border-color: transparent #B23029 transparent transparent;
+  transform: rotate(180deg) translateY(-1px);
+}
+
+.locked * { pointer-events: none; }
+.locked h3, .locked p { color: var(--ink-soft); }
+
+/* ---------- Tarjetas genéricas ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 28px;
+}
+
+/* ---------- Caja de aviso / tip ---------- */
+
+.tip-box {
+  background: var(--tip-bg);
+  border-left: 4px solid var(--brand);
+  border-radius: 0 var(--radius-tile) var(--radius-tile) 0;
+  padding: 16px 20px;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+/* ---------- Ventana de práctica / tablero embebido (para el tutorial) ---------- */
+
+.practice-window {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--surface);
+}
+.practice-window-header {
+  background: var(--tile-face);
+  border-bottom: 1px solid var(--border-strong);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.practice-window-body { padding: 20px; }
+
+/* ---------- Pie de página ---------- */
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 80px;
+  padding: 36px 0;
+  background: var(--surface);
+}
+.site-footer .container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-legal { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-legal a { color: var(--ink-soft); font-size: 13px; }
+.footer-note { color: var(--ink-soft); font-size: 13px; line-height: 18px; margin: 0; }
+
+/* ---------- Hueco reservado de anuncio (vacío hasta activar) ---------- */
+
+.ad-slot {
+  display: none; /* V1: sin anuncios activos. Cambiar a "flex" al integrar AdSense. */
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-tile);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  margin: 40px 0;
+}
+
+/* ---------- Utilidades ---------- */
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.section { padding: 64px 0; }
+
+@media (max-width: 760px) {
+  .main-nav { display: none; }
+  .nav-toggle { display: inline-flex; }
+  .site-header.nav-open .main-nav {
+    display: flex;
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    flex-direction: column;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Portada: hero ---------- */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 56px;
+  align-items: center;
+  padding-top: 40px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+.hero-actions .locked {
+  cursor: not-allowed;
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 22px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius-btn);
+  color: var(--ink-soft) !important;
+}
+
+/* Tablero decorativo: estado real a mitad de partida */
+.board-hero {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  background: var(--border-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-card);
+  padding: 8px;
+  aspect-ratio: 8 / 5;
+  box-shadow: 0 20px 40px -24px rgba(44, 44, 42, 0.35);
+}
+
+.board-hero .cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: clamp(0.75rem, 1.8vw, 1.15rem);
+  border-radius: var(--radius-tile);
+}
+
+.board-hero .cell.revealed {
+  background: var(--surface);
+  border-top: 2px solid var(--tile-dark);
+  border-left: 2px solid var(--tile-dark);
+  border-bottom: 2px solid var(--tile-light);
+  border-right: 2px solid var(--tile-light);
+}
+
+.board-hero .cell.unrevealed {
+  background: var(--tile-face);
+  border-top: 2px solid var(--tile-light);
+  border-left: 2px solid var(--tile-light);
+  border-bottom: 2px solid var(--tile-dark);
+  border-right: 2px solid var(--tile-dark);
+}
+
+.board-hero .cell.n1 { color: var(--n1); }
+.board-hero .cell.n2 { color: var(--n2); }
+.board-hero .cell.n3 { color: var(--n3); font-weight: 800; } /* refuerzo de peso: bajo contraste del amarillo sobre blanco */
+
+.board-hero .cell.flagged { position: relative; }
+.board-hero .cell.flagged::before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 46%;
+  background: var(--flag-pole);
+  bottom: 18%;
+}
+.board-hero .cell.flagged::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 34%;
+  height: 26%;
+  background: var(--flag-pennant);
+  clip-path: polygon(0 0, 100% 25%, 0 50%);
+}
+
+/* ---------- Portada: tarjetas de camino (jugar / entrenador) ---------- */
+
+.path-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.path-card { position: relative; }
+
+.difficulty-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+.pill {
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-tile);
+  padding: 8px 12px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-board { order: -1; }
+  .path-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Entrenador: cuadrícula de patrones ---------- */
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 28px;
+}
+
+@media (max-width: 860px) {
+  .pattern-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Tutorial: migas de pan y lista de lecciones ---------- */
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+
+.lesson-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lesson-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+}
+
+.lesson-number {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tile-face);
+  border-top: 2px solid var(--tile-light);
+  border-left: 2px solid var(--tile-light);
+  border-bottom: 2px solid var(--tile-dark);
+  border-right: 2px solid var(--tile-dark);
+  border-radius: var(--radius-tile);
+  font-weight: 700;
+  color: var(--n1);
+}
+
+.lesson-info h3 { margin-bottom: 4px; }
+.lesson-info p { margin: 0; }
+
+/* ---------- Página de lección individual ---------- */
+
+.lesson-progress {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.lesson-content-pending {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  padding: 32px;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.lesson-pager {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  gap: 16px;
+}
+.lesson-pager a { flex: 0 0 auto; }
+.lesson-pager .spacer { flex: 1; }
+
+/* ---------- Páginas legales ---------- */
+
+.legal-warning {
+  background: var(--tip-bg);
+  border-left: 4px solid var(--brand);
+  border-radius: 0 var(--radius-tile) var(--radius-tile) 0;
+  padding: 16px 20px;
+  font-size: 0.9rem;
+  color: var(--ink);
+  margin: 24px 0 36px;
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buscaminas Experto — Aprende a ganar sin adivinar</title>
+<meta name="description" content="Aprende las reglas del buscaminas paso a paso y, próximamente, domina las técnicas para ganar en modo Experto sin depender de la suerte.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <rect x="4" y="4" width="56" height="56" rx="8" fill="#E3E1DA"/>
+  <path d="M7 57 L7 7 L57 7" stroke="#F4F3EF" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M9 59 L59 59 L59 9" stroke="#B4B2A9" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <line x1="26" y1="48" x2="26" y2="16" stroke="#6B6A64" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="26,16 47,23.5 26,31" fill="#E53935"/>
+</svg></span>
+      <span class="brand-word-dark">Buscaminas</span> <span class="brand-word-accent">Experto</span>
+    </a>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="entrenador.html">Entrenador</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ---------- Hero ---------- -->
+  <section class="section">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Buscaminas · sin adivinar</p>
+        <h1>Deja de adivinar. Empieza a resolver.</h1>
+        <p style="font-size:1.1rem; max-width:46ch;">
+          Aprende las reglas del buscaminas desde cero con nuestro entrenador
+          interactivo. Más adelante, dominarás también los patrones que
+          usan los jugadores expertos para ganar en el nivel más difícil
+          sin dejar nada al azar.
+        </p>
+        <div class="hero-actions">
+          <a href="entrenador.html" class="btn btn-primary">Ir al entrenador</a>
+          <span class="btn btn-secondary locked" aria-disabled="true" tabindex="-1">
+            Jugar — próximamente
+          </span>
+        </div>
+      </div>
+
+      <div class="hero-board" aria-hidden="true">
+        <div class="board-hero">
+          <!-- Fila 1 -->
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed n2">2</div>
+          <div class="cell unrevealed"></div>
+          <div class="cell unrevealed"></div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed n1">1</div>
+          <!-- Fila 2 -->
+          <div class="cell unrevealed flagged"></div>
+          <div class="cell revealed n2">2</div>
+          <div class="cell revealed n3">3</div>
+          <div class="cell unrevealed"></div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell unrevealed"></div>
+          <!-- Fila 3 -->
+          <div class="cell unrevealed"></div>
+          <div class="cell unrevealed"></div>
+          <div class="cell revealed n2">2</div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed n1">1</div>
+          <!-- Fila 4 -->
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell unrevealed flagged"></div>
+          <!-- Fila 5 -->
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed"></div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed n1">1</div>
+          <div class="cell revealed n2">2</div>
+          <div class="cell unrevealed"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Dos caminos: jugar / entrenador ---------- -->
+  <section class="section" style="padding-top:0;">
+    <div class="container path-grid">
+
+      <div class="card path-card locked">
+        <span class="locked-flag">Próximamente</span>
+        <h3>Jugar una partida</h3>
+        <p>Elige tu nivel y pon a prueba lo que vayas aprendiendo.</p>
+        <div class="difficulty-pills">
+          <span class="pill">Principiante · 9×9</span>
+          <span class="pill">Intermedio · 16×16</span>
+          <span class="pill">Experto · 16×30</span>
+        </div>
+      </div>
+
+      <div class="card path-card">
+        <span class="eyebrow">Disponible ahora</span>
+        <h3>Entrenador de reglas</h3>
+        <p>Aprende paso a paso qué significa cada número, cómo usar las
+          banderas y cuándo has ganado o perdido, antes de sentarte a jugar.</p>
+        <a href="entrenador.html" class="btn btn-primary">Empezar a aprender</a>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-note">© 2026 Buscaminas Experto</p>
+    <div class="footer-legal">
+      <a href="legal/aviso-legal.html">Aviso legal</a>
+      <a href="legal/privacidad.html">Privacidad</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>
