@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /legal/contacto.html
 Disallow: /legal/
 
 Sitemap: https://buscaminasexperto.es/sitemap.xml
