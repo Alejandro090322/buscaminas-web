@@ -12,8 +12,10 @@ tutorial/
   index.html             → Índice de las 5 lecciones
   leccion-1.html … 5.html → Plantillas de cada lección (contenido pendiente)
 legal/
-  aviso-legal.html        → Borrador — completar datos entre [CORCHETES]
-  privacidad.html          → Borrador — completar datos entre [CORCHETES]
+  aviso-legal.html        → Datos identificativos del titular
+  privacidad.html          → Qué datos se tratan y con qué base jurídica
+  cookies.html              → Qué cookies hay activas hoy (ninguna) y cuáles se activarán con la publicidad
+  condiciones-uso.html      → Condiciones de uso del servicio
 css/styles.css            → Sistema de diseño completo (colores, tipografía, componentes)
 js/nav.js                 → Menú móvil
 assets/favicon.svg        → Icono del sitio
@@ -37,14 +39,12 @@ navegación entre lecciones: ya funcionan. Usa las clases ya definidas en
 `css/styles.css` (`.card`, `.pill`, etc.) para mantener el estilo consistente,
 o pide que se añadan clases nuevas si algo no encaja.
 
-## Pendiente antes de publicar
+## Pendiente antes de activar publicidad
 
-- Completar los datos entre `[CORCHETES]` en `legal/aviso-legal.html` y
-  `legal/privacidad.html` (nombre/razón social, NIF, dirección, email).
-- Elegir e integrar la herramienta de analítica sin cookies (Cloudflare Web
-  Analytics o GoatCounter) y actualizar el nombre real en `privacidad.html`.
-- Subir esta carpeta a un repositorio de GitHub y conectarlo con Netlify.
-- Apuntar el dominio buscaminasexperto.es a Netlify.
+- Cuando se active Google AdSense, actualizar `legal/privacidad.html` y
+  `legal/cookies.html` con la versión completa guardada en
+  `docs/legal-futuro/` (describe el servicio con anuncios y juego jugable ya activos).
+- Añadir el panel de consentimiento de cookies (CMP) en ese mismo momento.
 
 ## Decisiones de diseño (resumen)
 

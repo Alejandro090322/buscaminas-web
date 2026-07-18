@@ -556,3 +556,24 @@ a:hover { text-decoration: underline; }
   color: var(--ink);
   margin: 24px 0 36px;
 }
+
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 28px;
+  font-size: 0.85rem;
+}
+.legal-table th, .legal-table td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.legal-table th {
+  background: var(--tile-face);
+  font-weight: 600;
+}
+.legal-table td { color: var(--ink-soft); }
+
+main .container ul { padding-left: 20px; color: var(--ink-soft); }
+main .container ul li { margin-bottom: 8px; }
