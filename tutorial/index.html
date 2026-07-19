@@ -2,94 +2,325 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tutorial de reglas — Buscaminas Experto</title>
-<meta name="description" content="Cinco lecciones cortas para aprender las reglas del buscaminas desde cero.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buscaminas Experto — Entrenador · Nivel principiante</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../css/styles.css">
+<style>
+  :root{
+    --bg:#FAFAF8;
+    --card-bg:#FFFFFF;
+    --border:#E4E2DA;
+    --border-strong:#C9C7C0;
+    --ink:#2C2C2A;
+    --ink-dim:#6B6A64;
+    --accent:#FF6F00;
+    --tip-bg:#FFF4EB;
+    --gray-pole:#6B6A64;
+    --red:#E53935;
+    --red-soft:#FBEAE9;
+    --mine-fill:#2C2C2A;
+    --cell-covered:#E3E1DA;
+    --bevel-light:#F4F3EF;
+    --bevel-dark:#B4B2A9;
+    --cell-open:#F4F3EF;
+    --n1:#1E6FD9; --n2:#00897B; --n3:#F2B705; --n4:#E8720C;
+    --n5:#C0392B; --n6:#6B1414; --n7:#4A0E0E; --n8:#200404;
+    --success:#00897B;
+    --font:'Inter', system-ui, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    font-size:16px;
+    line-height:1.62;
+  }
+  h1,h2,h3{margin:0; font-weight:600;}
+  h1{font-size:32px; line-height:40px;}
+  h2{font-size:24px; line-height:32px;}
+  h3{font-size:18px; line-height:26px; font-weight:500;}
+  p{margin:0 0 14px; font-size:16px; line-height:26px;}
+  p:last-child{margin-bottom:0;}
+  .caption{font-size:13px; line-height:18px; color:var(--ink-dim);}
+  strong{color:var(--accent); font-weight:600;}
+
+  /* ---------- Cabecera ---------- */
+  .site-header{
+    display:flex; align-items:center; gap:12px;
+    padding:16px 20px;
+    border-bottom:1px solid var(--border);
+    background:var(--card-bg);
+    position:sticky; top:0; z-index:20;
+  }
+  .logo{display:flex; align-items:center; gap:10px;}
+  .logo-tile{
+    width:34px; height:34px; border-radius:8px;
+    background:var(--cell-covered);
+    box-shadow: inset 2px 2px 0 var(--bevel-light), inset -2px -2px 0 var(--bevel-dark);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .logo-tile svg{width:20px; height:20px;}
+  .wordmark{font-size:18px; font-weight:600; white-space:nowrap;}
+  .wordmark-dark{color:var(--ink);}
+  .wordmark-accent{color:var(--accent);}
+  .header-sub{font-size:13px; color:var(--ink-dim); border-left:1px solid var(--border); padding-left:12px; margin-left:2px;}
+  .back-link{margin-left:auto; font-size:13px; color:var(--ink-dim); text-decoration:none; white-space:nowrap;}
+  .back-link:hover{color:var(--accent);}
+
+  /* ---------- Pie de página (coherencia con el resto del sitio) ---------- */
+  .site-footer{
+    border-top:1px solid var(--border);
+    margin-top:40px;
+    padding:28px 20px;
+    background:var(--card-bg);
+  }
+  .site-footer-inner{
+    max-width:1000px; margin:0 auto;
+    display:flex; flex-wrap:wrap; gap:16px;
+    align-items:center; justify-content:space-between;
+  }
+  .footer-legal{display:flex; gap:18px; flex-wrap:wrap;}
+  .footer-legal a{color:var(--ink-dim); font-size:13px; text-decoration:none;}
+  .footer-legal a:hover{color:var(--accent);}
+  .footer-note{color:var(--ink-dim); font-size:13px; margin:0;}
+
+  /* ---------- Layout ---------- */
+  .app{
+    max-width:1000px; margin:0 auto;
+    display:flex; gap:24px;
+    padding:24px 20px 80px;
+    align-items:flex-start;
+  }
+  .lesson-nav{
+    width:230px; flex-shrink:0;
+    display:flex; flex-direction:column; gap:4px;
+    position:sticky; top:78px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13.5px;
+    color:var(--ink-dim);
+    border:1px solid transparent;
+    transition:background .12s ease;
+  }
+  .nav-item:hover{background:var(--tip-bg);}
+  .nav-item.active{background:var(--tip-bg); border-color:var(--accent); color:var(--ink); font-weight:600;}
+  .nav-num{
+    width:20px; height:20px; border-radius:50%;
+    background:var(--border);
+    color:var(--ink-dim);
+    font-size:11px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .nav-item.active .nav-num{background:var(--accent); color:#fff;}
+  .nav-item.completed .nav-num{background:var(--success); color:#fff;}
+  .nav-item.closing{margin-top:8px; border-top:1px dashed var(--border); padding-top:14px; border-radius:0; border-top-style:dashed;}
+
+  .main{flex:1; max-width:640px; min-width:0;}
+
+  .progress-line{
+    display:flex; align-items:center; gap:10px;
+    font-size:12.5px; color:var(--ink-dim);
+    margin-bottom:14px;
+  }
+  .progress-bar{
+    flex:1; height:4px; border-radius:2px; background:var(--border); overflow:hidden;
+  }
+  .progress-bar-fill{height:100%; background:var(--accent); border-radius:2px; transition:width .2s ease;}
+
+  .stepper{display:flex; gap:6px; margin-bottom:16px; font-size:12px; color:var(--ink-dim); align-items:center;}
+  .stepper .dot{width:8px; height:8px; border-radius:50%; background:var(--border);}
+  .stepper .dot.active{background:var(--accent);}
+  .stepper .dot.done{background:var(--success);}
+
+  /* ---------- Tarjetas ---------- */
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:26px 24px;
+    margin-bottom:16px;
+  }
+  .kicker{
+    font-size:12px; font-weight:600; color:var(--accent);
+    text-transform:uppercase; letter-spacing:0.06em;
+    margin:0 0 6px;
+  }
+  .card h1{margin-bottom:14px;}
+  .card-dots{display:flex; gap:5px; margin:14px 0 0;}
+  .card-dots .dot{width:6px; height:6px; border-radius:50%; background:var(--border);}
+  .card-dots .dot.active{background:var(--accent);}
+
+  .tip{
+    background:var(--tip-bg);
+    border-left:4px solid var(--accent);
+    border-radius:0 8px 8px 0;
+    padding:12px 16px;
+    font-size:14.5px;
+    margin:16px 0 0;
+  }
+
+  table.levels{width:100%; border-collapse:collapse; font-size:14.5px; margin:14px 0 0;}
+  table.levels th, table.levels td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);}
+  table.levels th{color:var(--ink-dim); font-weight:600; font-size:12.5px; text-transform:uppercase; letter-spacing:0.03em;}
+
+  /* ---------- Botones ---------- */
+  .btn-row{display:flex; justify-content:flex-end; gap:8px; margin-top:16px;}
+  .btn-row.between{justify-content:space-between;}
+  button{font-family:var(--font); cursor:pointer;}
+  .btn-primary{
+    font-size:14px; font-weight:600; background:var(--accent); color:#fff;
+    border:none; padding:11px 20px; border-radius:8px;
+  }
+  .btn-primary:hover{background:#e5640a;}
+  .btn-primary:disabled{opacity:0.4; cursor:default;}
+  .btn-secondary{
+    font-size:14px; font-weight:600; background:transparent; color:var(--accent);
+    border:1px solid var(--accent); padding:10px 18px; border-radius:8px;
+  }
+  .btn-secondary:hover{background:var(--tip-bg);}
+  .btn-secondary.muted{color:var(--ink-dim); border-color:var(--border);}
+  .btn-secondary.muted:hover{border-color:var(--ink-dim);}
+
+  /* ---------- Tablero ---------- */
+  .board-holder{display:flex; justify-content:center; margin:16px 0;}
+  .board{display:inline-grid; gap:2px; background:var(--border); padding:2px; border-radius:6px;}
+  .cell{
+    width:40px; height:40px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:600; user-select:none;
+  }
+  .cell.void{background:transparent;}
+  .cell.open{
+    background:var(--cell-open); color:var(--ink);
+    box-shadow: inset -2px -2px 0 var(--bevel-light), inset 2px 2px 0 var(--bevel-dark);
+  }
+  .cell.n1{color:var(--n1);} .cell.n2{color:var(--n2);} .cell.n3{color:var(--n3);}
+  .cell.n4{color:var(--n4);} .cell.n5{color:var(--n5);} .cell.n6{color:var(--n6);}
+  .cell.n7{color:var(--n7);} .cell.n8{color:var(--n8);}
+  .cell.covered{
+    background:var(--cell-covered);
+    box-shadow: inset 2px 2px 0 var(--bevel-light), inset -2px -2px 0 var(--bevel-dark);
+  }
+  .cell.covered.interactive{cursor:pointer; touch-action:none; -webkit-touch-callout:none; transition:transform .1s ease, background .1s ease;}
+  .cell.pressing{transform:scale(0.92); background:#d8d5cb;}
+  .cell.flagged svg{width:20px; height:20px;}
+  .cell.exploded{background:var(--red);}
+  .cell.exploded svg .mine-body{fill:#fff;}
+  .cell.revealed-mine{background:var(--red-soft);}
+  .cell svg{width:20px; height:20px;}
+
+  .practice-frame{border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; margin:16px 0 0;}
+  .practice-frame-header{
+    background:var(--cell-open); padding:7px 14px;
+    font-size:11.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--ink-dim); border-bottom:1px solid var(--border-strong);
+  }
+  .practice-frame-body{padding:18px 16px;}
+
+  .controls-legend{
+    display:flex; flex-direction:column; gap:6px; align-items:center;
+    font-size:12.5px; color:var(--ink-dim); margin:12px 0 0;
+  }
+  .controls-legend span{display:flex; align-items:center; gap:6px;}
+  .key{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:600; background:var(--cell-open);
+    border:1px solid var(--border); border-radius:4px; padding:2px 6px;
+  }
+
+  .hint-toast{
+    text-align:center; font-size:12.5px; color:var(--accent);
+    min-height:18px; margin-top:8px; opacity:0; transition:opacity .15s ease;
+  }
+  .hint-toast.show{opacity:1;}
+
+  .feedback{
+    margin-top:14px; padding:13px 15px; border-left:3px solid var(--border);
+    font-size:14px; line-height:1.6; border-radius:0 8px 8px 0; display:none;
+  }
+  .feedback.correct{border-left-color:var(--success); background:#E7F5F1; display:block;}
+  .feedback.incorrect{border-left-color:var(--red); background:var(--red-soft); display:block;}
+  .feedback .verdict{
+    font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;
+    display:block; margin-bottom:6px;
+  }
+  .feedback.correct .verdict{color:var(--success);}
+  .feedback.incorrect .verdict{color:var(--red);}
+
+  /* ---------- Quiz de opciones visuales (tableros) ---------- */
+  .quiz-question{font-size:15px; margin:0 0 16px;}
+  .quiz-visual-options{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:6px;}
+  .quiz-option{
+    border:1px solid var(--border); border-radius:10px; padding:14px 16px;
+    cursor:pointer; text-align:center; background:var(--card-bg);
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .quiz-option:hover{border-color:var(--accent); background:var(--tip-bg);}
+  .quiz-option.selected-correct{border-color:var(--success); background:#E7F5F1;}
+  .quiz-option.selected-incorrect{border-color:var(--red); background:var(--red-soft);}
+  .quiz-option-label{font-size:13px; font-weight:600; margin-top:8px; color:var(--ink-dim);}
+
+  .quiz-choices{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:16px 0 0;}
+  button.quiz-choice{
+    font-family:var(--font); font-size:14px; font-weight:600;
+    background:var(--card-bg); border:1px solid var(--border); color:var(--ink);
+    padding:10px 18px; border-radius:8px;
+  }
+  button.quiz-choice:hover{border-color:var(--accent); color:var(--accent);}
+  button.quiz-choice:disabled{opacity:0.4; cursor:default;}
+
+  /* ---------- Cierre ---------- */
+  .closing-icon{display:flex; justify-content:center; margin-bottom:8px;}
+  .closing-icon svg{width:56px; height:56px;}
+
+  @media (max-width: 760px){
+    .app{flex-direction:column; padding:16px 14px 60px;}
+    .lesson-nav{
+      width:100%; position:static; flex-direction:row; overflow-x:auto;
+      gap:8px; padding-bottom:6px;
+    }
+    .nav-item{flex-shrink:0; white-space:nowrap;}
+    .nav-item.closing{margin-top:0; border-top:none; padding-top:10px; border-left:1px dashed var(--border); border-radius:8px; padding-left:14px;}
+    .main{max-width:100%;}
+  }
+</style>
 </head>
 <body>
 
 <header class="site-header">
-  <div class="container">
-    <a href="../index.html" class="brand">
-      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-  <rect x="4" y="4" width="56" height="56" rx="8" fill="#E3E1DA"/>
-  <path d="M7 57 L7 7 L57 7" stroke="#F4F3EF" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M9 59 L59 59 L59 9" stroke="#B4B2A9" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <line x1="26" y1="48" x2="26" y2="16" stroke="#6B6A64" stroke-width="4" stroke-linecap="round"/>
-  <polygon points="26,16 47,23.5 26,31" fill="#E53935"/>
-</svg></span>
-      <span class="brand-word-dark">Buscaminas</span> <span class="brand-word-accent">Experto</span>
-    </a>
-    <nav class="main-nav" aria-label="Navegación principal">
-      <a href="../index.html">Inicio</a>
-      <a href="../entrenador.html">Entrenador</a>
-    </nav>
-    <button class="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-    </button>
+  <div class="logo">
+    <div class="logo-tile">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <line x1="7" y1="3" x2="7" y2="21" style="stroke:var(--gray-pole); stroke-width:2; stroke-linecap:round"/>
+        <path d="M7 4 L19 8 L7 13 Z" style="fill:var(--red)"/>
+      </svg>
+    </div>
+    <span class="wordmark"><span class="wordmark-dark">Buscaminas</span> <span class="wordmark-accent">Experto</span></span>
   </div>
+  <span class="header-sub">Entrenador · Nivel principiante</span>
+  <a href="../entrenador.html" class="back-link">&larr; Volver al entrenador</a>
 </header>
 
-<main>
-  <section class="section" style="padding-bottom:24px;">
-    <div class="container">
-      <p class="breadcrumb"><a href="../entrenador.html">Entrenador</a> / Tutorial</p>
-      <p class="eyebrow">Tutorial</p>
-      <h1>Aprende las reglas del buscaminas</h1>
-      <p style="max-width:56ch; font-size:1.05rem;">Cinco lecciones cortas, en orden. Cuando termines la última, sabrás todo lo necesario para jugar una partida sin confusión.</p>
-    </div>
-  </section>
-
-  <section class="section" style="padding-top:0;">
-    <div class="container">
-      <ol class="lesson-list">
-        <li class="lesson-item">
-          <span class="lesson-number">1</span>
-          <div class="lesson-info">
-            <h3><a href="leccion-1.html">Qué es el buscaminas</a></h3>
-            <p>El objetivo del juego y de qué va todo esto.</p>
-          </div>
-        </li>
-        <li class="lesson-item">
-          <span class="lesson-number">2</span>
-          <div class="lesson-info">
-            <h3><a href="leccion-2.html">El tablero y los números</a></h3>
-            <p>Qué significa cada número que aparece al revelar una casilla.</p>
-          </div>
-        </li>
-        <li class="lesson-item">
-          <span class="lesson-number">3</span>
-          <div class="lesson-info">
-            <h3><a href="leccion-3.html">Las banderas</a></h3>
-            <p>Para qué sirven y cuándo conviene usarlas.</p>
-          </div>
-        </li>
-        <li class="lesson-item">
-          <span class="lesson-number">4</span>
-          <div class="lesson-info">
-            <h3><a href="leccion-4.html">Cómo ganar y cómo perder</a></h3>
-            <p>Las condiciones exactas de victoria y de derrota.</p>
-          </div>
-        </li>
-        <li class="lesson-item">
-          <span class="lesson-number">5</span>
-          <div class="lesson-info">
-            <h3><a href="leccion-5.html">Errores típicos de principiante</a></h3>
-            <p>Los fallos más comunes al empezar, y cómo evitarlos.</p>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-</main>
+<div class="app">
+  <nav class="lesson-nav" id="lessonNav"></nav>
+  <main class="main">
+    <div id="lessonRoot"></div>
+    <div id="closingScreen" class="card" style="display:none;"></div>
+  </main>
+</div>
 
 <footer class="site-footer">
-  <div class="container">
+  <div class="site-footer-inner">
     <p class="footer-note">© 2026 Buscaminas Experto</p>
     <div class="footer-legal">
       <a href="../legal/aviso-legal.html">Aviso legal</a>
@@ -101,7 +332,905 @@
   </div>
 </footer>
 
-<script src="../js/nav.js"></script>
+<script>
+/* =========================================================
+   ICONOS
+   ========================================================= */
+function flagSVG(){
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+    + '<line x1="7" y1="3" x2="7" y2="21" style="stroke:var(--gray-pole); stroke-width:2; stroke-linecap:round"/>'
+    + '<path d="M7 4 L19 8 L7 13 Z" style="fill:var(--red)"/></svg>';
+}
+function mineSVG(){
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+    + '<polygon class="mine-body" points="12,4 19,8 19,16 12,20 5,16 5,8" style="fill:var(--mine-fill)"/>'
+    + '<circle cx="9.5" cy="9.5" r="1.7" style="fill:var(--red)"/></svg>';
+}
+function checkSVG(){
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+    + '<path d="M4 12.5 L9.5 18 L20 6" fill="none" style="stroke:#fff; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round"/></svg>';
+}
+
+/* =========================================================
+   TABLERO ESTÁTICO (para teoría y opciones de quiz)
+   cellDefs: [{r,c,state:'open'|'covered'|'exploded'|'revealed-mine', number}]
+   ========================================================= */
+function renderStaticBoard(rows, cols, cellDefs){
+  const board = document.createElement('div');
+  board.className = 'board';
+  board.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+  const map = {};
+  cellDefs.forEach(c => map[c.r+','+c.c] = c);
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const def = map[r+','+c];
+      const div = document.createElement('div');
+      if(!def){ div.className='cell void'; board.appendChild(div); continue; }
+      if(def.state==='open'){
+        div.className = 'cell open' + (def.number ? ' n'+def.number : '');
+        div.textContent = def.number ? def.number : '';
+      } else if(def.state==='covered'){
+        div.className = 'cell covered';
+      } else if(def.state==='exploded'){
+        div.className = 'cell exploded';
+        div.innerHTML = mineSVG();
+      } else if(def.state==='revealed-mine'){
+        div.className = 'cell revealed-mine';
+        div.innerHTML = mineSVG();
+      } else if(def.state==='flagged'){
+        div.className = 'cell covered flagged';
+        div.innerHTML = flagSVG();
+      }
+      board.appendChild(div);
+    }
+  }
+  return board;
+}
+
+/* =========================================================
+   MOTOR DE PRÁCTICA — TABLERO INTERACTIVO
+   config: {rows, cols, cells:[{r,c,mine,number}], requireFlagsToo,
+            instructions, successText, failText}
+   ========================================================= */
+function BoardSolveExercise(container, config, onSolved){
+  const self = this;
+  const key = (r,c) => r+','+c;
+  const cellsByKey = {};
+  let mineCells, safeCells, initiallyRevealed, dynamicPending;
+
+  if(config.dynamic){
+    // Modo dinámico (Lección 3): el tablero empieza vacío de minas de verdad.
+    // Se rellena solo cuando el jugador hace su primer clic, dejando siempre
+    // esa casilla y sus vecinas libres — así el primer clic es SIEMPRE seguro,
+    // no por diseño de un tablero fijo, sino por construcción en el momento.
+    config.rows = config.dynamic.rows;
+    config.cols = config.dynamic.cols;
+    for(let r=0;r<config.rows;r++) for(let c=0;c<config.cols;c++){
+      cellsByKey[key(r,c)] = {r, c, mine:false, number:0};
+    }
+    mineCells = [];
+    safeCells = [];
+    initiallyRevealed = [];
+    dynamicPending = true;
+  } else {
+    config.cells.forEach(c => cellsByKey[key(c.r,c.c)] = c);
+    mineCells = config.cells.filter(c=>c.mine);
+    // "safeCells" son las casillas SIN mina que el jugador aún tiene que destapar.
+    // Las que ya empiezan destapadas (c.open) no cuentan: no hace falta ninguna acción sobre ellas.
+    safeCells = config.cells.filter(c=>!c.mine && !c.open);
+    initiallyRevealed = config.cells.filter(c=>c.open).map(c=>key(c.r,c.c));
+    dynamicPending = false;
+  }
+
+  let flags = new Set(config.initialFlags || []);
+  let revealed = new Set(initiallyRevealed);
+  let checked = false;
+  let outcome = null;
+  let explodedKey = null;
+  let hintTimer = null;
+
+  container.innerHTML = `
+    ${config.instructions ? `<p style="text-align:center; margin-bottom:14px;">${config.instructions}</p>` : ''}
+    <div class="practice-frame">
+      <div class="practice-frame-header">Práctica</div>
+      <div class="practice-frame-body">
+        <div class="board-holder" id="boardHolder"></div>
+        <div class="controls-legend">
+          <span><span class="key">mantener pulsado</span> → colocar / quitar bandera</span>
+          <span><span class="key">pulsación corta</span> → destapar casilla</span>
+        </div>
+        <p class="hint-toast" id="hintToast"></p>
+      </div>
+    </div>
+    <div class="feedback" id="feedback">
+      <span class="verdict" id="verdict"></span>
+      <span id="explanation"></span>
+    </div>
+    <div class="btn-row" id="retryRow" style="display:none; justify-content:center;">
+      <button class="btn-secondary muted" id="retryBtn">↺ Reintentar</button>
+    </div>
+  `;
+  const boardHolder = container.querySelector('#boardHolder');
+  const hintToast = container.querySelector('#hintToast');
+  const feedback = container.querySelector('#feedback');
+  const verdict = container.querySelector('#verdict');
+  const explanation = container.querySelector('#explanation');
+  const retryRow = container.querySelector('#retryRow');
+  container.querySelector('#retryBtn').addEventListener('click', ()=> self.reset());
+
+  function showHint(msg){
+    hintToast.textContent = msg;
+    hintToast.classList.add('show');
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(()=> hintToast.classList.remove('show'), 2200);
+  }
+
+  function neighbors(r,c){
+    const out = [];
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      if(dr===0 && dc===0) continue;
+      const k = key(r+dr,c+dc);
+      if(cellsByKey[k]) out.push(cellsByKey[k]);
+    }
+    return out;
+  }
+
+  // Genera las minas EN EL MOMENTO del primer clic, dejando siempre libres
+  // la casilla pulsada y sus vecinas — así el primer clic nunca puede fallar.
+  function generateMinesAvoiding(clickedR, clickedC){
+    const forbidden = new Set([key(clickedR, clickedC)]);
+    neighbors(clickedR, clickedC).forEach(n => forbidden.add(key(n.r, n.c)));
+
+    const candidates = Object.values(cellsByKey).filter(c => !forbidden.has(key(c.r, c.c)));
+    for(let i=candidates.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      const tmp = candidates[i]; candidates[i] = candidates[j]; candidates[j] = tmp;
+    }
+    candidates.slice(0, config.dynamic.mineCount).forEach(c => { c.mine = true; });
+
+    Object.values(cellsByKey).forEach(c=>{
+      if(!c.mine) c.number = neighbors(c.r, c.c).filter(n=>n.mine).length;
+    });
+
+    mineCells = Object.values(cellsByKey).filter(c=>c.mine);
+    safeCells = Object.values(cellsByKey).filter(c=>!c.mine);
+    dynamicPending = false;
+  }
+
+  function doReveal(cell){
+    const k = key(cell.r, cell.c);
+    if(revealed.has(k) || flags.has(k)) return;
+    revealed.add(k);
+    if(cell.number === 0){
+      neighbors(cell.r, cell.c).forEach(n=>{
+        const nk = key(n.r,n.c);
+        if(!n.mine && !revealed.has(nk) && !flags.has(nk)) doReveal(n);
+      });
+    }
+  }
+
+  function computeWin(){
+    const allSafeRevealed = safeCells.every(c=>revealed.has(key(c.r,c.c)));
+    if(config.requireFlagsToo){
+      const allMinesFlagged = mineCells.length===0 ||
+        (flags.size===mineCells.length && mineCells.every(c=>flags.has(key(c.r,c.c))));
+      return allSafeRevealed && allMinesFlagged;
+    }
+    if(safeCells.length===0){
+      return flags.size===mineCells.length && mineCells.every(c=>flags.has(key(c.r,c.c)));
+    }
+    return allSafeRevealed;
+  }
+
+  function setFeedback(kind, v, e){
+    feedback.className = 'feedback ' + kind;
+    verdict.textContent = v;
+    explanation.textContent = e;
+  }
+
+  function render(){
+    boardHolder.innerHTML = '';
+    const board = document.createElement('div');
+    board.className = 'board';
+    board.style.gridTemplateColumns = `repeat(${config.cols}, 40px)`;
+
+    for(let r=0;r<config.rows;r++){
+      for(let c=0;c<config.cols;c++){
+        const cell = cellsByKey[key(r,c)];
+        const div = document.createElement('div');
+        if(!cell){ div.className='cell void'; board.appendChild(div); continue; }
+        const k = key(r,c);
+        const isRevealed = revealed.has(k);
+        const isFlagged = flags.has(k);
+
+        if(checked && outcome==='fail' && cell.mine){
+          div.className = 'cell ' + (k===explodedKey ? 'exploded' : 'revealed-mine');
+          div.innerHTML = mineSVG();
+          board.appendChild(div); continue;
+        }
+        if(isRevealed && !cell.mine){
+          div.className = 'cell open' + (cell.number ? ' n'+cell.number : '');
+          div.textContent = cell.number ? cell.number : '';
+          board.appendChild(div); continue;
+        }
+        // covered (tapada, con o sin bandera)
+        div.className = 'cell covered' + (checked ? '' : ' interactive');
+        if(isFlagged){ div.innerHTML = flagSVG(); }
+
+        if(!checked){
+          let pressTimer = null, longPressFired = false;
+          const LONG_PRESS_MS = 420;
+          div.addEventListener('pointerdown', ()=>{
+            longPressFired = false;
+            div.classList.add('pressing');
+            pressTimer = setTimeout(()=>{
+              longPressFired = true;
+              div.classList.remove('pressing');
+              if(isFlagged) flags.delete(k); else flags.add(k);
+              render();
+              if(computeWin()){ finishSuccess(); }
+            }, LONG_PRESS_MS);
+          });
+          const cancelPress = ()=>{ clearTimeout(pressTimer); div.classList.remove('pressing'); };
+          div.addEventListener('pointerup', ()=>{
+            cancelPress();
+            if(!longPressFired){
+              if(dynamicPending){
+                // Primer clic en modo dinámico: generar minas ahora, revelar esta
+                // casilla (garantizado 0, cascada real) y dar el ejercicio por superado.
+                generateMinesAvoiding(cell.r, cell.c);
+                doReveal(cellsByKey[key(cell.r, cell.c)]);
+                render();
+                finishSuccess();
+                return;
+              }
+              if(isFlagged){
+                showHint('Esa casilla tiene bandera. Mantén pulsado para quitarla antes de destaparla.');
+                return;
+              }
+              if(cell.mine){ finishFail(k); return; }
+              doReveal(cell);
+              render();
+              if(computeWin()){ finishSuccess(); }
+            }
+          });
+          div.addEventListener('pointerleave', cancelPress);
+          div.addEventListener('pointercancel', cancelPress);
+        }
+        board.appendChild(div);
+      }
+    }
+    boardHolder.appendChild(board);
+  }
+
+  function finishFail(k){
+    checked = true; outcome = 'fail'; explodedKey = k;
+    setFeedback('incorrect', 'Has pisado una mina', config.failText);
+    retryRow.style.display = 'flex';
+    render();
+  }
+  function finishSuccess(){
+    checked = true; outcome = 'success';
+    setFeedback('correct', 'Correcto', config.successText);
+    retryRow.style.display = 'none';
+    render();
+    onSolved();
+  }
+
+  this.reset = function(){
+    flags = new Set(config.initialFlags || []);
+    revealed = new Set(initiallyRevealed);
+    checked = false; outcome = null; explodedKey = null;
+    feedback.className = 'feedback';
+    retryRow.style.display = 'none';
+    if(config.dynamic){
+      // Volver a dejar el tablero en blanco: se regenerará con un nuevo
+      // reparto de minas en el siguiente primer clic.
+      Object.values(cellsByKey).forEach(c=>{ c.mine=false; c.number=0; });
+      mineCells = []; safeCells = []; dynamicPending = true;
+    }
+    render();
+  };
+  this.isSolved = () => checked && outcome === 'success';
+
+  render();
+}
+
+/* =========================================================
+   MOTOR DE PRÁCTICA — QUIZ (texto u opciones visuales)
+   config: {question, visual:{rows,cols,cells}|null, optionsVisual:bool,
+            options:[{label, board:{rows,cols,cells}, correct}],
+            explanationCorrect, explanationIncorrect}
+   ========================================================= */
+function QuizExercise(container, config, onSolved){
+  let solved = false;
+  container.innerHTML = `
+    <p class="quiz-question">${config.question}</p>
+    <div id="quizVisual" class="board-holder" style="display:none;"></div>
+    <div id="quizOptions"></div>
+    <div class="feedback" id="feedback">
+      <span class="verdict" id="verdict"></span>
+      <span id="explanation"></span>
+    </div>
+  `;
+  const visualHolder = container.querySelector('#quizVisual');
+  const optionsHolder = container.querySelector('#quizOptions');
+  const feedback = container.querySelector('#feedback');
+  const verdict = container.querySelector('#verdict');
+  const explanation = container.querySelector('#explanation');
+
+  if(config.visual){
+    visualHolder.style.display = 'flex';
+    visualHolder.appendChild(renderStaticBoard(config.visual.rows, config.visual.cols, config.visual.cells));
+  }
+
+  function answer(isCorrect, el){
+    feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+    verdict.textContent = isCorrect ? 'Correcto' : 'No exactamente';
+    explanation.textContent = isCorrect ? config.explanationCorrect : config.explanationIncorrect;
+    if(config.optionsVisual){
+      optionsHolder.querySelectorAll('.quiz-option').forEach(o=>{
+        o.classList.remove('selected-correct','selected-incorrect');
+      });
+      el.classList.add(isCorrect ? 'selected-correct' : 'selected-incorrect');
+    } else if(isCorrect){
+      // Solo se bloquean los botones al acertar; un fallo permite volver a intentarlo.
+      optionsHolder.querySelectorAll('.quiz-choice').forEach(b=> b.disabled = true);
+    }
+    if(isCorrect && !solved){ solved = true; onSolved(); }
+  }
+
+  function build(){
+    optionsHolder.innerHTML = '';
+    if(config.optionsVisual){
+      const row = document.createElement('div');
+      row.className = 'quiz-visual-options';
+      config.options.forEach(opt=>{
+        const card = document.createElement('div');
+        card.className = 'quiz-option';
+        card.appendChild(renderStaticBoard(opt.board.rows, opt.board.cols, opt.board.cells));
+        const label = document.createElement('div');
+        label.className = 'quiz-option-label';
+        label.textContent = opt.label;
+        card.appendChild(label);
+        card.addEventListener('click', ()=> answer(!!opt.correct, card));
+        row.appendChild(card);
+      });
+      optionsHolder.appendChild(row);
+    } else {
+      const row = document.createElement('div');
+      row.className = 'quiz-choices';
+      config.options.forEach(opt=>{
+        const btn = document.createElement('button');
+        btn.className = 'quiz-choice';
+        btn.textContent = opt.label;
+        btn.addEventListener('click', ()=> answer(!!opt.correct, btn));
+        row.appendChild(btn);
+      });
+      optionsHolder.appendChild(row);
+    }
+  }
+
+  this.reset = function(){
+    solved = false;
+    feedback.className = 'feedback';
+    optionsHolder.querySelectorAll('.quiz-choice').forEach(b=> b.disabled=false);
+    build();
+  };
+  this.isSolved = () => solved;
+
+  build();
+}
+
+/* =========================================================
+   DATOS DE LAS LECCIONES
+   ========================================================= */
+const LESSONS = [
+
+// ---------------- Lección 1 ----------------
+{
+  navTitle: 'Qué es el buscaminas',
+  kicker: 'Nivel principiante · Lección 1',
+  theoryCards: [
+    {
+      title: 'El objetivo',
+      body: 'Bajo algunas casillas hay minas escondidas. Tu objetivo es destapar todas las casillas que <strong>no</strong> tienen mina, sin destapar nunca una que sí la tenga.',
+      tip: 'No hace falta marcar las minas para ganar. Las banderas son solo una ayuda para ti, no para el juego.',
+      board: { rows:2, cols:4, cells: [
+        {r:0,c:0,state:'covered'},{r:0,c:1,state:'covered'},{r:0,c:2,state:'covered'},{r:0,c:3,state:'covered'},
+        {r:1,c:0,state:'covered'},{r:1,c:1,state:'covered'},{r:1,c:2,state:'covered'},{r:1,c:3,state:'covered'}
+      ]}
+    },
+    {
+      title: 'Los niveles',
+      body: 'Cuanto más grande el tablero y más minas tenga, más difícil es la partida. Este tutorial te prepara para ganar en el nivel Principiante.',
+      table: [
+        ['Principiante','9 × 9','10 minas'],
+        ['Intermedio','16 × 16','40 minas'],
+        ['Experto','16 × 30','99 minas']
+      ]
+    }
+  ],
+  practice: [
+    { kind:'quiz', optionsVisual:true,
+      question: '¿Cuál de estas dos partidas está ganada?',
+      options: [
+        { label:'Tablero A', correct:true, board:{ rows:3, cols:3, cells:[
+          {r:0,c:0,state:'open',number:1},{r:0,c:1,state:'open',number:1},{r:0,c:2,state:'open',number:0},
+          {r:1,c:0,state:'open',number:1},{r:1,c:1,state:'open',number:1},{r:1,c:2,state:'open',number:0},
+          {r:2,c:0,state:'open',number:0},{r:2,c:1,state:'open',number:0},{r:2,c:2,state:'open',number:0}
+        ]}},
+        { label:'Tablero B', correct:false, board:{ rows:3, cols:3, cells:[
+          {r:0,c:0,state:'open',number:1},{r:0,c:1,state:'open',number:2},{r:0,c:2,state:'covered'},
+          {r:1,c:0,state:'covered'},{r:1,c:1,state:'exploded'},{r:1,c:2,state:'covered'},
+          {r:2,c:0,state:'covered'},{r:2,c:1,state:'covered'},{r:2,c:2,state:'covered'}
+        ]}}
+      ],
+      explanationCorrect: 'El Tablero A está completo: todas las casillas seguras están destapadas y no hay ninguna mina explotada. Así se gana.',
+      explanationIncorrect: 'En el Tablero B se ha destapado una mina — la partida termina en derrota en ese mismo instante. Fíjate en el Tablero A: ahí sí están todas las casillas seguras destapadas.'
+    }
+  ]
+},
+
+// ---------------- Lección 2 ----------------
+{
+  navTitle: 'Los controles',
+  kicker: 'Nivel principiante · Lección 2',
+  theoryCards: [
+    {
+      title: 'Destapar una casilla',
+      body: 'Con una pulsación corta destapas una casilla. Si no había mina, verás un número — o quedará vacía. Si había mina, pierdes la partida al momento.'
+    },
+    {
+      title: 'Marcar con bandera',
+      body: 'Mantén pulsada una casilla para ponerle una bandera, como aviso de que ahí crees que hay una mina.',
+      tip: 'La bandera no revela nada por sí sola: es solo tu propia nota. Una casilla con bandera no se destapa por accidente.'
+    }
+  ],
+  practice: [
+    { kind:'boardsolve',
+      instructions: 'Coloca la bandera en la casilla marcada como mina y destapa la casilla segura.',
+      rows:2, cols:3,
+      cells: [
+        {r:0,c:0,mine:false,number:1,open:true},
+        {r:0,c:1,mine:true},
+        {r:0,c:2,mine:false,number:1},
+        {r:1,c:0,mine:false,number:1,open:true},
+        {r:1,c:1,mine:false,number:1,open:true},
+        {r:1,c:2,mine:false,number:1,open:true}
+      ],
+      requireFlagsToo: true,
+      successText: 'Has marcado la mina y destapado la casilla segura. Esos son los dos únicos gestos que necesitas para jugar.',
+      failText: 'Esta casilla era la mina que había que marcar con bandera, no destapar. Recuerda: mantener pulsado marca, pulsación corta destapa.'
+    }
+  ]
+},
+
+// ---------------- Lección 3 ----------------
+{
+  navTitle: 'El primer clic',
+  kicker: 'Nivel principiante · Lección 3',
+  theoryCards: [
+    {
+      title: 'El primer clic siempre es seguro',
+      body: 'El primer clic de una partida nunca puede caer sobre una mina. Puedes empezar donde quieras, sin miedo.',
+      tip: 'Cuanto más cerca del centro empieces, más casillas suelen abrirse de golpe.'
+    }
+  ],
+  practice: [
+    { kind:'boardsolve',
+      instructions: 'Haz clic donde quieras. Este tablero tiene minas de verdad — pero tu primer clic nunca puede caer sobre una.',
+      dynamic: { rows:6, cols:6, mineCount:5 },
+      successText: 'Ha sido tu primer clic — y como ves, siempre es seguro. El juego coloca las minas después de tu clic, dejando libre esa casilla y todas sus vecinas. Prueba a repetir el ejercicio: cada vez el tablero es distinto.',
+      failText: ''
+    }
+  ]
+},
+
+// ---------------- Lección 4 ----------------
+{
+  navTitle: 'Cómo leer los números',
+  kicker: 'Nivel principiante · Lección 4',
+  theoryCards: [
+    {
+      title: 'Qué significa cada número',
+      body: 'Un número indica cuántas minas hay en sus casillas vecinas — las 8 que lo rodean. Nunca cuenta minas más lejanas.'
+    },
+    {
+      title: 'Un ejemplo',
+      body: 'Aquí ves dónde está realmente la mina — algo que normalmente no podrías ver. Fíjate en que todas sus vecinas muestran un 1: en un tablero tan pequeño, no hay ninguna casilla que quede fuera de su alcance.',
+      board: { rows:3, cols:3, cells: (()=>{
+        const arr=[]; const mineR=1, mineC=1;
+        for(let r=0;r<3;r++) for(let c=0;c<3;c++){
+          if(r===mineR && c===mineC){ arr.push({r,c,state:'revealed-mine'}); continue; }
+          arr.push({r,c,state:'open', number:1});
+        }
+        return arr;
+      })() }
+    }
+  ],
+  practice: [
+    { kind:'quiz', optionsVisual:false,
+      question: 'En este mismo ejemplo, ¿qué número aparecería en la casilla marcada si la destapases?',
+      visual: { rows:3, cols:3, cells: (()=>{
+        const arr=[]; const mineR=1, mineC=1; const hideR=0, hideC=0;
+        for(let r=0;r<3;r++) for(let c=0;c<3;c++){
+          if(r===mineR && c===mineC){ arr.push({r,c,state:'revealed-mine'}); continue; }
+          if(r===hideR && c===hideC){ arr.push({r,c,state:'covered'}); continue; }
+          arr.push({r,c,state:'open', number:1});
+        }
+        return arr;
+      })() },
+      options: [ {label:'0',correct:false}, {label:'1',correct:true}, {label:'2',correct:false} ],
+      explanationCorrect: 'Esa casilla toca directamente a la mina, así que su número cuenta exactamente 1 mina vecina.',
+      explanationIncorrect: 'Fíjate en si la casilla marcada está pegada a la mina (aunque sea en diagonal). Si lo está, cuenta como vecina.'
+    }
+  ]
+},
+
+// ---------------- Lección 6 ----------------
+{
+  navTitle: 'La mina obligatoria',
+  kicker: 'Nivel principiante · Lección 5',
+  theoryCards: [
+    {
+      title: 'El número no deja dudas',
+      body: 'Si el número de casillas tapadas alrededor de un número coincide exactamente con su propio valor, no hay margen de duda: todas esas casillas tapadas son minas.',
+      board: { rows:2, cols:2, cells: [
+        {r:0,c:0,state:'covered'},{r:0,c:1,state:'covered'},
+        {r:1,c:0,state:'covered'},{r:1,c:1,state:'open',number:3}
+      ]},
+      caption: 'El 3 tiene exactamente 3 casillas tapadas alrededor: las 3 tienen que ser minas.'
+    }
+  ],
+  practice: [
+    { kind:'boardsolve',
+      instructions: 'Marca con bandera todas las casillas que, según la regla, tienen que ser minas.',
+      rows:2, cols:2,
+      cells: [
+        {r:0,c:0,mine:false,number:2,open:true},
+        {r:0,c:1,mine:true},
+        {r:1,c:0,mine:true},
+        {r:1,c:1,mine:false,number:2,open:true}
+      ],
+      successText: 'Los dos números ven exactamente las mismas 2 casillas tapadas, y ambos valen 2: las dos tienen que ser minas. Esa es la regla, sin importar desde qué número la mires.',
+      failText: 'Los dos números de este tablero tenían exactamente 2 casillas tapadas a su alrededor, así que las dos tenían que ser minas — incluida esta. Antes de destapar una casilla dudosa, comprueba primero si algún número cercano ya garantiza que es mina.'
+    }
+  ]
+},
+
+// ---------------- Lección 7 ----------------
+{
+  navTitle: 'La casilla segura',
+  kicker: 'Nivel principiante · Lección 6',
+  theoryCards: [
+    {
+      title: 'La casilla segura',
+      body: 'Cuando un número ya tiene tantas banderas a su alrededor como su propio valor, se queda satisfecho: el resto de sus casillas tapadas no pueden ser minas.',
+      tip: 'Puedes destaparlas con total confianza — no hace falta razonar más sobre ellas.'
+    }
+  ],
+  practice: [
+    { kind:'boardsolve',
+      instructions: 'La bandera ya está puesta. Destapa la casilla que ahora sabes que es segura.',
+      rows:2, cols:2,
+      cells: [
+        {r:0,c:0,mine:true},
+        {r:0,c:1,mine:false,number:1},
+        {r:1,c:0,mine:false,number:1,open:true},
+        {r:1,c:1,mine:false,number:1,open:true}
+      ],
+      initialFlags: ['0,0'],
+      successText: 'El 1 ya tenía su bandera: con la mina identificada, su vecina no podía ser mina. Por eso era seguro destaparla.',
+      failText: 'La bandera ya marcaba la única mina de la zona. Como el número ya estaba satisfecho, su vecina tapada era siempre segura — no había necesidad de arriesgar.'
+    },
+    { kind:'boardsolve',
+      instructions: 'Aquí no hay ninguna bandera todavía. Encuentra primero la mina obligatoria, y después la casilla que se vuelve segura.',
+      rows:2, cols:3,
+      cells: [
+        {r:0,c:0,mine:false,number:1,open:true},
+        {r:0,c:1,mine:true},
+        {r:0,c:2,mine:false,number:1},
+        {r:1,c:0,mine:false,number:1,open:true},
+        {r:1,c:1,mine:false,number:1,open:true},
+        {r:1,c:2,mine:false,number:1,open:true}
+      ],
+      successText: 'Primero el 1 de la izquierda —con una sola casilla tapada a su alrededor— te daba la mina obligatoria. En cuanto la marcaste, el número de la derecha quedó satisfecho y su vecina se volvió segura. Así se encadenan las dos reglas.',
+      failText: 'Antes de destapar, busca primero un número con una sola casilla tapada alrededor — esa es la mina obligatoria. Al marcarla, el número vecino queda satisfecho y te dice qué más es seguro.'
+    }
+  ]
+},
+
+// ---------------- Lección 8 ----------------
+{
+  navTitle: 'Un tablero completo',
+  kicker: 'Nivel principiante · Lección 7',
+  theoryCards: [
+    {
+      title: 'Ya tienes lo necesario',
+      body: 'Con leer los números, encontrar la mina obligatoria y reconocer la casilla segura, ya puedes ganar una partida de nivel Principiante sin adivinar.',
+      tip: 'A veces no hay ninguna deducción posible — ahí es cuando incluso un jugador experto tiene que adivinar. El objetivo es minimizar esas veces, no eliminarlas del todo.'
+    }
+  ],
+  practice: [
+    { kind:'boardsolve',
+      instructions: 'Ya tienes destapada la zona segura. Ahora te toca encontrar las minas y la última casilla que falta.',
+      rows:4, cols:5,
+      // Minas en (0,0) y (0,3), aisladas entre sí (sin vecinas en común).
+      // (0,1) y (0,2) delatan cada mina por separado (mina obligatoria, Lección 6).
+      // (0,4) solo se puede destapar tras marcar (0,3): se satisface a través de (1,3)/(1,4) (casilla segura, Lección 7).
+      cells: [
+        {r:0,c:0,mine:true},
+        {r:0,c:1,mine:false,number:1,open:true},
+        {r:0,c:2,mine:false,number:1,open:true},
+        {r:0,c:3,mine:true},
+        {r:0,c:4,mine:false,number:1},
+        {r:1,c:0,mine:false,number:1,open:true},
+        {r:1,c:1,mine:false,number:1,open:true},
+        {r:1,c:2,mine:false,number:1,open:true},
+        {r:1,c:3,mine:false,number:1,open:true},
+        {r:1,c:4,mine:false,number:1,open:true},
+        {r:2,c:0,mine:false,number:0,open:true},
+        {r:2,c:1,mine:false,number:0,open:true},
+        {r:2,c:2,mine:false,number:0,open:true},
+        {r:2,c:3,mine:false,number:0,open:true},
+        {r:2,c:4,mine:false,number:0,open:true},
+        {r:3,c:0,mine:false,number:0,open:true},
+        {r:3,c:1,mine:false,number:0,open:true},
+        {r:3,c:2,mine:false,number:0,open:true},
+        {r:3,c:3,mine:false,number:0,open:true},
+        {r:3,c:4,mine:false,number:0,open:true}
+      ],
+      successText: '¡Tablero resuelto! Dos minas obligatorias encontradas por separado, y la última casilla revelada en cuanto su número vecino quedó satisfecho por la bandera. Eso es todo lo que necesitas para el nivel Principiante.',
+      failText: 'Antes de destapar una casilla dudosa, repasa: ¿algún número cercano tiene ya tantas banderas como su valor? Si es así, sus vecinas son seguras. Si no, busca primero un número con una única casilla tapada — esa es la mina obligatoria.'
+    }
+  ]
+}
+
+];
+
+/* =========================================================
+   PROGRESO (localStorage, sin login)
+   ========================================================= */
+const PROGRESS_KEY = 'buscaminas-experto-tutorial-progreso';
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if(!raw) return new Array(LESSONS.length).fill(false);
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed) && parsed.length===LESSONS.length) return parsed;
+  }catch(e){}
+  return new Array(LESSONS.length).fill(false);
+}
+function saveProgress(){
+  try{ localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); }catch(e){}
+}
+let progress = loadProgress();
+
+/* =========================================================
+   ESTADO DE NAVEGACIÓN Y RENDER PRINCIPAL
+   ========================================================= */
+let view = { lessonIndex: 0, mode: 'theory', cardIndex: 0, exerciseIndex: 0 };
+{
+  const firstIncomplete = progress.findIndex(p => !p);
+  view.lessonIndex = firstIncomplete === -1 ? 0 : firstIncomplete;
+  if(firstIncomplete === -1) view.mode = 'closing';
+}
+
+let activeExerciseInstance = null;
+
+function goLesson(index, mode){
+  view = { lessonIndex: index, mode: mode || 'theory', cardIndex: 0, exerciseIndex: 0 };
+  renderAll();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function goClosing(){
+  view.mode = 'closing';
+  renderAll();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderNav(){
+  const nav = document.getElementById('lessonNav');
+  nav.innerHTML = '';
+  LESSONS.forEach((lesson, i)=>{
+    const item = document.createElement('div');
+    item.className = 'nav-item' + (view.mode!=='closing' && view.lessonIndex===i ? ' active':'') + (progress[i] ? ' completed':'');
+    item.innerHTML = `<span class="nav-num">${progress[i] ? checkSVG() : (i+1)}</span><span>${lesson.navTitle}</span>`;
+    item.addEventListener('click', ()=> goLesson(i, 'theory'));
+    nav.appendChild(item);
+  });
+  const closingItem = document.createElement('div');
+  closingItem.className = 'nav-item closing' + (view.mode==='closing' ? ' active':'');
+  closingItem.innerHTML = `<span class="nav-num">${progress.every(p=>p) ? checkSVG() : '✓'}</span><span>Cierre del tutorial</span>`;
+  closingItem.addEventListener('click', goClosing);
+  nav.appendChild(closingItem);
+}
+
+function renderTheoryCard(lesson, root){
+  const card = lesson.theoryCards[view.cardIndex];
+  const isLast = view.cardIndex === lesson.theoryCards.length - 1;
+  const div = document.createElement('div');
+  div.className = 'card';
+  let html = `<p class="kicker">${lesson.kicker}</p><h1>${card.title}</h1><p>${card.body}</p>`;
+  if(card.table){
+    html += '<table class="levels"><tr><th>Nivel</th><th>Tamaño</th><th>Minas</th></tr>';
+    card.table.forEach(row=> html += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`);
+    html += '</table>';
+  }
+  if(card.tip) html += `<div class="tip">${card.tip}</div>`;
+  div.innerHTML = html;
+
+  if(card.board){
+    const holder = document.createElement('div');
+    holder.className = 'board-holder';
+    holder.appendChild(renderStaticBoard(card.board.rows, card.board.cols, card.board.cells));
+    div.appendChild(holder);
+    if(card.caption){
+      const cap = document.createElement('p');
+      cap.className = 'caption';
+      cap.style.textAlign = 'center';
+      cap.textContent = card.caption;
+      div.appendChild(cap);
+    }
+  }
+
+  if(lesson.theoryCards.length > 1){
+    const dots = document.createElement('div');
+    dots.className = 'card-dots';
+    dots.style.justifyContent = 'center';
+    lesson.theoryCards.forEach((_, i)=>{
+      const d = document.createElement('span');
+      d.className = 'dot' + (i===view.cardIndex ? ' active':'');
+      dots.appendChild(d);
+    });
+    div.appendChild(dots);
+  }
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  const btn = document.createElement('button');
+  btn.className = 'btn-primary';
+  btn.textContent = isLast ? 'Practicar →' : 'Siguiente →';
+  btn.addEventListener('click', ()=>{
+    if(isLast){ view.mode='practice'; view.exerciseIndex=0; }
+    else { view.cardIndex++; }
+    renderAll();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  btnRow.appendChild(btn);
+  div.appendChild(btnRow);
+  root.appendChild(div);
+}
+
+function renderPractice(lesson, root){
+  const exConfig = lesson.practice[view.exerciseIndex];
+  const isLastExercise = view.exerciseIndex === lesson.practice.length - 1;
+  const isLastLesson = view.lessonIndex === LESSONS.length - 1;
+
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `<p class="kicker">${lesson.kicker} · Práctica</p><h1>Ponlo en práctica</h1>`;
+
+  if(lesson.practice.length > 1){
+    const dots = document.createElement('div');
+    dots.className = 'card-dots';
+    lesson.practice.forEach((_, i)=>{
+      const d = document.createElement('span');
+      d.className = 'dot' + (i===view.exerciseIndex ? ' active':'');
+      dots.appendChild(d);
+    });
+    div.appendChild(dots);
+  }
+
+  const exHolder = document.createElement('div');
+  div.appendChild(exHolder);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row between';
+  const backBtn = document.createElement('button');
+  backBtn.className = 'btn-secondary muted';
+  backBtn.textContent = '← Volver a la teoría';
+  backBtn.addEventListener('click', ()=>{ view.mode='theory'; renderAll(); window.scrollTo({top:0, behavior:'smooth'}); });
+
+  const rightWrap = document.createElement('div');
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn-primary';
+  nextBtn.style.display = 'none';
+  nextBtn.textContent = isLastExercise
+    ? (isLastLesson ? 'Terminar tutorial →' : 'Siguiente lección →')
+    : 'Siguiente ejercicio →';
+  nextBtn.addEventListener('click', ()=>{
+    if(isLastExercise){
+      if(isLastLesson) goClosing();
+      else goLesson(view.lessonIndex+1, 'theory');
+    } else {
+      view.exerciseIndex++;
+      renderAll();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  });
+  rightWrap.appendChild(nextBtn);
+  btnRow.appendChild(backBtn);
+  btnRow.appendChild(rightWrap);
+  div.appendChild(btnRow);
+  root.appendChild(div);
+
+  function markSolved(){
+    nextBtn.style.display = 'inline-block';
+    if(isLastExercise){
+      progress[view.lessonIndex] = true;
+      saveProgress();
+      renderNav();
+    }
+  }
+
+  if(exConfig.kind === 'boardsolve'){
+    activeExerciseInstance = new BoardSolveExercise(exHolder, exConfig, markSolved);
+  } else if(exConfig.kind === 'quiz'){
+    activeExerciseInstance = new QuizExercise(exHolder, exConfig, markSolved);
+  }
+}
+
+function renderClosing(){
+  const el = document.getElementById('closingScreen');
+  const allDone = progress.every(p=>p);
+  el.innerHTML = `
+    <div class="closing-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="11" style="fill:var(--success)"/>
+        <path d="M6 12.5 L10.5 17 L18 7" fill="none" style="stroke:#fff; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round"/>
+      </svg>
+    </div>
+    <p class="kicker" style="text-align:center;">Entrenador · Nivel principiante</p>
+    <h1 style="text-align:center;">${allDone ? '¡Tutorial completado!' : 'Todavía te quedan lecciones'}</h1>
+    <p style="text-align:center;">
+      ${allDone
+        ? 'Ya sabes leer los números, marcar la mina obligatoria y reconocer la casilla segura — lo necesario para ganar en el nivel Principiante sin adivinar.'
+        : 'Puedes venir aquí cuando quieras. De momento aún hay lecciones sin completar en el menú de la izquierda.'}
+    </p>
+    <div class="btn-row" style="justify-content:center; margin-top:20px;">
+      <a class="btn-secondary" id="playBtn" href="../juego/principiante.html" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Jugar nivel Principiante →</a>
+    </div>
+  `;
+  el.style.display = 'block';
+}
+
+function renderAll(){
+  document.getElementById('closingScreen').style.display = 'none';
+  const root = document.getElementById('lessonRoot');
+  root.innerHTML = '';
+  renderNav();
+
+  if(view.mode === 'closing'){
+    renderClosing();
+    return;
+  }
+
+  const lesson = LESSONS[view.lessonIndex];
+  const totalSteps = 2; // teoría, práctica
+  const stepIndex = view.mode === 'theory' ? 0 : 1;
+
+  const progLine = document.createElement('div');
+  progLine.className = 'progress-line';
+  progLine.innerHTML = `<span>Lección ${view.lessonIndex+1} de ${LESSONS.length}</span>
+    <div class="progress-bar"><div class="progress-bar-fill" style="width:${((view.lessonIndex + (stepIndex+1)/2)/LESSONS.length*100).toFixed(0)}%"></div></div>`;
+  root.appendChild(progLine);
+
+  const stepper = document.createElement('div');
+  stepper.className = 'stepper';
+  stepper.innerHTML = `
+    <span class="dot ${stepIndex===0?'active':'done'}"></span><span>Teoría</span>
+    <span class="dot ${stepIndex===1?'active':''}" style="margin-left:10px;"></span><span>Práctica</span>
+  `;
+  root.appendChild(stepper);
+
+  if(view.mode === 'theory') renderTheoryCard(lesson, root);
+  else renderPractice(lesson, root);
+}
+
+renderAll();
+</script>
 <script data-goatcounter="https://buscaminasexpert.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

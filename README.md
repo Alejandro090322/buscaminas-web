@@ -9,35 +9,32 @@ plantillas del tutorial. Listo para subir a GitHub y desplegar en Netlify.
 index.html              → Página de Inicio
 entrenador.html          → Landing del Entrenador (tutorial activo, patrones "Próximamente")
 tutorial/
-  index.html             → Índice de las 5 lecciones
-  leccion-1.html … 5.html → Plantillas de cada lección (contenido pendiente)
+  index.html             → Tutorial completo (5 lecciones con teoría y ejercicios interactivos, una sola página con motor JS propio, aportada por el equipo de contenido)
+juego/
+  principiante.html       → Página "Próximamente" del nivel Principiante jugable
 legal/
   aviso-legal.html        → Datos identificativos del titular
   privacidad.html          → Qué datos se tratan y con qué base jurídica
   cookies.html              → Qué cookies hay activas hoy (ninguna) y cuáles se activarán con la publicidad
   condiciones-uso.html      → Condiciones de uso del servicio
+  contacto.html              → Vía de contacto con el titular
 css/styles.css            → Sistema de diseño completo (colores, tipografía, componentes)
 js/nav.js                 → Menú móvil
 assets/favicon.svg        → Icono del sitio
 robots.txt / sitemap.xml  → SEO técnico básico
+docs/legal-futuro/        → Versión completa de los documentos legales y de contacto, para publicar cuando el juego, el entrenador avanzado y la publicidad estén activos
 ```
 
-## Para quien rellene el contenido del tutorial
+## Sobre el tutorial
 
-Cada archivo `tutorial/leccion-N.html` tiene un bloque marcado así:
-
-```html
-<!-- CONTENIDO PENDIENTE — a completar por el equipo de contenido del entrenador. ... -->
-<div class="lesson-content-pending">
-  Contenido de esta lección pendiente de redactar.
-</div>
-```
-
-Sustituye ese `<div>` por el contenido real (texto, listas, imágenes,
-interactividad). No hace falta tocar nada de la cabecera, pie de página ni
-navegación entre lecciones: ya funcionan. Usa las clases ya definidas en
-`css/styles.css` (`.card`, `.pill`, etc.) para mantener el estilo consistente,
-o pide que se añadan clases nuevas si algo no encaja.
+`tutorial/index.html` es una página autocontenida (estilos y JavaScript
+propios, sin depender de `css/styles.css`) con 5 lecciones, teoría y
+ejercicios interactivos, entregada ya terminada por el equipo de contenido.
+Se le añadió únicamente: enlace de vuelta al Entrenador, pie de página con
+los enlaces legales, favicon y analítica — para que tenga la misma coherencia
+que el resto del sitio. El botón final "Jugar nivel Principiante" enlaza a
+`juego/principiante.html` (página "Próximamente"), a la espera de que el
+motor del juego jugable esté listo.
 
 ## Pendiente antes de activar publicidad
 
