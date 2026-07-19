@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jugar — Nivel Principiante — Buscaminas Experto</title>
-<meta name="robots" content="noindex">
-<meta name="description" content="El nivel Principiante jugable está en desarrollo. Mientras tanto, aprende las reglas en el tutorial.">
+<title>Jugar al Buscaminas — Nivel Principiante (9x9) — Buscaminas Experto</title>
+<meta name="description" content="Juega gratis al Buscaminas nivel Principiante, tablero 9x9 con 10 minas, online y sin descargas ni registro.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="principiante/styles.css">
 </head>
 <body>
 
@@ -38,18 +38,34 @@
 
 <main>
   <section class="section">
-    <div class="container" style="max-width:640px; text-align:center;">
-      <div class="card locked" style="padding:48px 32px;">
-        <span class="locked-flag" style="position:static; display:inline-block; margin-bottom:20px; border-radius:3px;">Próximamente</span>
-        <h1 style="margin-top:0;">Nivel Principiante</h1>
-        <p style="max-width:44ch; margin:0 auto 28px;">
-          El tablero jugable todavía está en desarrollo. Cuando esté listo,
-          podrás poner en práctica aquí mismo lo que has aprendido en el tutorial.
-        </p>
-        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
-          <a href="../tutorial/index.html" class="btn btn-primary">Volver al tutorial</a>
-          <a href="../entrenador.html" class="btn btn-secondary">Ir al entrenador</a>
+    <div class="container">
+      <p class="eyebrow">Jugar</p>
+      <h1>Nivel Principiante</h1>
+      <p style="max-width:52ch;">
+        Tablero 9×9 con 10 minas. Mantén pulsada una casilla para poner o
+        quitar una bandera; toca o haz click para abrirla.
+      </p>
+
+      <div class="bm-game" id="bm-game">
+        <div class="bm-hud">
+          <div class="bm-hud-stat">
+            <span class="bm-hud-label">Minas</span>
+            <span class="bm-hud-value" id="bm-contador-minas" aria-live="polite">10</span>
+          </div>
+
+          <button type="button" class="bm-reset" id="bm-reset" aria-label="Nueva partida">🙂</button>
+
+          <div class="bm-hud-stat">
+            <span class="bm-hud-label">Tiempo</span>
+            <span class="bm-hud-value" id="bm-cronometro" aria-live="polite">0</span>
+          </div>
         </div>
+
+        <div class="bm-board-wrap">
+          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9"></div>
+        </div>
+
+        <p class="bm-mensaje" id="bm-mensaje" role="status" aria-live="assertive"></p>
       </div>
     </div>
   </section>
@@ -69,6 +85,7 @@
 </footer>
 
 <script src="../js/nav.js"></script>
-<script data-goatcounter="https://buscaminasexpert.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script src="principiante/board.js"></script>
+<script src="principiante/render.js"></script>
 </body>
 </html>

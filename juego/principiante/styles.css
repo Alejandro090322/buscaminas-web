@@ -1,0 +1,234 @@
+/* =========================================================
+   Buscaminas Experto — Nivel Principiante (9x9 / 10 minas)
+   Hoja de estilos autocontenida para este componente: define y usa sus
+   propios tokens de marca (mismo criterio que tutorial/index.html, que
+   tampoco depende de css/styles.css).
+   ========================================================= */
+
+:root {
+  /* ---- Marca ---- */
+  --color-brand-accent: #FF6F00;
+  --color-wordmark-dark: #2C2C2A;
+
+  /* ---- Paleta de peligro (números 1-8) ---- */
+  --color-num-1: #1E6FD9;
+  --color-num-2: #00897B;
+  --color-num-3: #F2B705;
+  --color-num-4: #E8720C;
+  --color-num-5: #C0392B;
+  --color-num-6: #6B1414;
+  --color-num-7: #4A0E0E;
+  --color-num-8: #200404;
+
+  /* ---- Bandera ---- */
+  --color-flag-mast: #6B6A64;
+  --color-flag-pennant: #E53935;
+
+  /* ---- Mina ---- */
+  --color-mine-body: #2C2C2A;
+  --color-mine-spark: #E53935;
+
+  /* ---- Superficies web ---- */
+  --color-page-bg: #FAFAF8;
+  --color-card-bg: #FFFFFF;
+  --color-border-standard: #E4E2DA;
+
+  /* ---- Bisel de casilla ---- */
+  --color-cell-bevel-light: #F4F3EF;
+  --color-cell-bevel-dark: #B4B2A9;
+  --color-cell-closed-bg: #E3E1DA;
+
+  /* ---- Tipografía ---- */
+  --font-family-base: 'Inter', sans-serif;
+
+  /* ---- Layout propio del componente (no son tokens de marca) ---- */
+  --bm-radius: 8px;
+  --bm-cell-size: clamp(30px, 9vw, 42px);
+  --bm-cell-gap: 3px;
+}
+
+.bm-game {
+  max-width: 480px;
+  margin: 0 auto;
+  font-family: var(--font-family-base);
+}
+
+/* ---------- HUD: contador de minas, botón de reinicio, cronómetro ---------- */
+
+.bm-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border-standard);
+  border-radius: var(--bm-radius);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.bm-hud-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56px;
+}
+
+.bm-hud-label {
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-wordmark-dark);
+  opacity: 0.55;
+}
+
+.bm-hud-value {
+  font-family: var(--font-family-base);
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-wordmark-dark);
+}
+
+.bm-reset {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  background: var(--color-cell-closed-bg);
+  border-top: 2px solid var(--color-cell-bevel-light);
+  border-left: 2px solid var(--color-cell-bevel-light);
+  border-bottom: 2px solid var(--color-cell-bevel-dark);
+  border-right: 2px solid var(--color-cell-bevel-dark);
+  border-radius: var(--bm-radius);
+  font-family: var(--font-family-base);
+}
+.bm-reset:active { transform: translateY(1px); }
+.bm-reset:focus-visible {
+  outline: 3px solid var(--color-num-1);
+  outline-offset: 2px;
+}
+
+/* ---------- Tablero ---------- */
+
+.bm-board-wrap {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.bm-board {
+  display: grid;
+  grid-template-columns: repeat(9, var(--bm-cell-size));
+  grid-auto-rows: var(--bm-cell-size);
+  gap: var(--bm-cell-gap);
+  background: var(--color-border-standard);
+  border: 1px solid var(--color-border-standard);
+  border-radius: var(--bm-radius);
+  padding: 8px;
+}
+
+.bm-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: var(--font-family-base);
+  font-weight: 700;
+  font-size: calc(var(--bm-cell-size) * 0.8); /* números ocupan ~80% de la altura de la celda */
+  border-radius: var(--bm-radius);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* evita el menú nativo de "guardar imagen" en pulsación larga (iOS) */
+  touch-action: manipulation;  /* evita el zoom por doble toque sin bloquear el scroll de la página */
+}
+
+/* Casilla sin abrir: bisel realzado (claro arriba-izquierda, oscuro abajo-derecha) */
+.bm-cell--closed {
+  background: var(--color-cell-closed-bg);
+  border-top: 2px solid var(--color-cell-bevel-light);
+  border-left: 2px solid var(--color-cell-bevel-light);
+  border-bottom: 2px solid var(--color-cell-bevel-dark);
+  border-right: 2px solid var(--color-cell-bevel-dark);
+}
+
+/* Casilla abierta: bisel invertido, sensación de hundimiento */
+.bm-cell--open {
+  background: var(--color-card-bg);
+  border-top: 2px solid var(--color-cell-bevel-dark);
+  border-left: 2px solid var(--color-cell-bevel-dark);
+  border-bottom: 2px solid var(--color-cell-bevel-light);
+  border-right: 2px solid var(--color-cell-bevel-light);
+  cursor: default;
+}
+
+.bm-cell--n1 { color: var(--color-num-1); }
+.bm-cell--n2 { color: var(--color-num-2); }
+.bm-cell--n3 { color: var(--color-num-3); font-weight: 800; } /* refuerzo de peso: bajo contraste del amarillo sobre blanco */
+.bm-cell--n4 { color: var(--color-num-4); }
+.bm-cell--n5 { color: var(--color-num-5); }
+.bm-cell--n6 { color: var(--color-num-6); }
+.bm-cell--n7 { color: var(--color-num-7); }
+.bm-cell--n8 { color: var(--color-num-8); }
+
+/* ---------- Bandera ---------- */
+
+.bm-cell--flagged::before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 46%;
+  background: var(--color-flag-mast);
+  bottom: 18%;
+}
+.bm-cell--flagged::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 34%;
+  height: 26%;
+  background: var(--color-flag-pennant);
+  clip-path: polygon(0 0, 100% 25%, 0 50%);
+}
+
+/* ---------- Mina ---------- */
+
+.bm-cell--mine::before {
+  content: '';
+  width: 55%;
+  height: 55%;
+  border-radius: 50%;
+  background: var(--color-mine-body);
+  box-shadow: 0 0 0 2px var(--color-mine-spark) inset;
+}
+
+/* Mina que hizo perder la partida: resaltada de forma distinta al resto */
+.bm-cell--mine-exploded {
+  background: var(--color-flag-pennant);
+}
+
+/* ---------- Mensaje de estado (victoria / derrota) ---------- */
+
+.bm-mensaje {
+  text-align: center;
+  min-height: 22px;
+  margin-top: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 600;
+}
+.bm-mensaje--ganada { color: var(--color-num-2); }
+.bm-mensaje--perdida { color: var(--color-flag-pennant); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-reset { transition: none; }
+}
