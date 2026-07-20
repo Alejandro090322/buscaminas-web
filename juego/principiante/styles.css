@@ -13,11 +13,16 @@
    los próximos niveles (Intermedio, Experto): las media queries de CSS
    no admiten var(), así que no hay forma de "importar" el número, solo
    de copiarlo tal cual desde aquí.
+
+   Móvil y tablet comparten el MISMO patrón de disposición (franja de
+   estado apilada encima del tablero); solo escritorio (≥1024px) cambia
+   a panel lateral + tablero en columnas. Ver ".bm-layout" más abajo.
    ========================================================= */
 
 :root {
   /* ---- Marca ---- */
   --color-brand-accent: #FF6F00;
+  --color-brand-accent-dark: #D95F00;
   --color-wordmark-dark: #2C2C2A;
 
   /* ---- Paleta de peligro (números 1-8) ---- */
@@ -33,6 +38,7 @@
   /* ---- Bandera ---- */
   --color-flag-mast: #6B6A64;
   --color-flag-pennant: #E53935;
+  --color-flag-circle-bg: #FFF4EB; /* círculo de contraste claro/blanco roto detrás de la bandera */
 
   /* ---- Mina ---- */
   --color-mine-body: #2C2C2A;
@@ -43,25 +49,40 @@
   --color-card-bg: #FFFFFF;
   --color-border-standard: #E4E2DA;
 
-  /* ---- Bisel de casilla ---- */
+  /* ---- Bisel de casilla ABIERTA (sin cambios: gris neutro) ---- */
   --color-cell-bevel-light: #F4F3EF;
   --color-cell-bevel-dark: #B4B2A9;
-  --color-cell-closed-bg: #E3E1DA;
+
+  /* ---- Casilla SIN ABRIR: color de marca, con variantes claras/oscuras
+     del mismo naranja para el bisel 3D (no se reutilizan los tonos
+     grises de arriba, que son solo para la casilla abierta). No se toca
+     en este archivo salvo por la bandera (ver .bm-flag-icon). ---- */
+  --color-cell-closed-bg: var(--color-brand-accent);
+  --color-cell-closed-bevel-light: #FFA557;
+  --color-cell-closed-bevel-dark: #C75A00;
 
   /* ---- Tipografía ---- */
   --font-family-base: 'Inter', sans-serif;
 
   /* ---- Layout propio del componente (no son tokens de marca) ---- */
   --bm-radius: 8px;
-  --bm-board-max-width: 440px; /* referencia de escritorio pedida: da celdas ~44px con el padding/gap de abajo */
-  --bm-board-padding: 6px;     /* móvil: algo más ajustado para ganar sitio */
-  --bm-cell-gap: 2px;          /* móvil */
+  --bm-board-max-width: 480px; /* techo móvil/tablet (disposición apilada, ancho manda) */
+  --bm-board-padding: 5px;
+  --bm-cell-gap: 2px;
+  --bm-sidebar-width: 200px;
 }
 
 @media (min-width: 640px) {
   :root {
-    --bm-board-padding: 8px;
+    --bm-board-padding: 7px;
     --bm-cell-gap: 3px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --bm-board-max-width: 560px; /* techo escritorio (panel lateral, el alto disponible suele mandar antes de llegar aquí) */
+    --bm-sidebar-width: 220px;
   }
 }
 
@@ -77,48 +98,91 @@
 }
 
 /* "main" solo crece como ítem flex de body (empuja el footer abajo si el
-   contenido es corto, patrón sticky-footer); a propósito NO es display:flex
-   por dentro, para que .bm-page (que reutiliza la clase compartida
-   .container, con su propio margin:0 auto) se comporte como un bloque
-   normal en vez de encogerse a su contenido por los márgenes automáticos
-   dentro de un contenedor flex. */
+   contenido es corto, patrón sticky-footer). */
 .page-jugar main {
   flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .bm-page {
-  padding-top: 14px;
-  padding-bottom: 16px;
-  padding-left: 12px;
-  padding-right: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 14px;
 }
 
 @media (min-width: 640px) {
-  .bm-page {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
+  .bm-page { padding: 16px 24px; }
 }
 
 @media (min-width: 1024px) {
-  .bm-page {
-    padding-top: 24px;
+  .bm-page { padding: 24px 32px; }
+}
+
+/* ---------- Layout general ----------
+   .bm-layout es un simple flex: columna (panel arriba, tablero debajo)
+   en móvil/tablet, fila (panel a la izquierda, tablero a la derecha,
+   estirados a la misma altura) en escritorio — el mismo patrón
+   flex "panel + main" que ya probamos que reparte bien el alto
+   disponible con .bm-board-wrap más abajo.
+
+   Dentro de .bm-panel, ".bm-hud-row" agrupa tiempo/reiniciar/minas en
+   una fila (grid de 3 columnas) para móvil/tablet; en escritorio pasa a
+   display:contents para que esos tres se coloquen como hijos directos
+   del panel (un flex column), reordenados con "order" a Nivel, Tiempo,
+   Minas, Reiniciar.
+
+   (Antes se probó resolver todo el layout — panel Y tablero — con un
+   único CSS Grid de grid-template-areas; al combinarlo con
+   display:contents en la fila de móvil se generaban pistas de grid
+   implícitas que rompían el tamaño del tablero — problema conocido de
+   interoperabilidad de esa combinación. Este enfoque más simple, con
+   flexbox para la división panel/tablero, evita el problema.) */
+
+.bm-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font-family-base);
+}
+
+@media (min-width: 640px) {
+  .bm-layout { gap: 14px; }
+}
+
+@media (min-width: 1024px) {
+  .bm-layout {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 24px;
   }
 }
 
-.bm-eyebrow { margin-bottom: 2px; }
-
-.bm-title {
-  margin-bottom: 10px;
-  font-size: 26px;
-  line-height: 1.2;
+.bm-panel {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.bm-game {
-  max-width: var(--bm-board-max-width);
-  width: 100%;
-  margin: 0 auto;
-  font-family: var(--font-family-base);
+@media (min-width: 1024px) {
+  .bm-panel {
+    width: var(--bm-sidebar-width);
+    gap: 10px;
+  }
+}
+
+.bm-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .page-jugar .site-footer {
@@ -129,47 +193,71 @@
 
 /* Hueco reservado para el anuncio futuro: a diferencia del resto del sitio
    (donde .ad-slot permanece oculto hasta activar AdSense), en esta página
-   se deja con espacio propio en el layout para cuando se active. */
+   se deja con espacio propio en el layout, debajo del tablero, para
+   cuando se active. */
 .bm-ad-slot {
   display: flex;
   flex-shrink: 0;
-  min-height: 48px;
+  min-height: 56px;
   margin: 10px 0 0;
   font-family: var(--font-family-base);
 }
 
-/* Ocultación temporal del placeholder de anuncio: sigue en el DOM (no se
-   borra el contenedor) para cuando se integre un proveedor real, pero no
-   debe verse ni ocupar espacio mientras tanto. */
+/* Ocultación temporal del contenido del placeholder de anuncio: sigue en
+   el DOM y sigue reservando su hueco en el layout (no se borra el
+   contenedor ni se colapsa su espacio), solo se le quita la visibilidad
+   mientras no hay un proveedor real integrado. */
 .ad-slot--placeholder-hidden {
-  display: none;
+  visibility: hidden;
 }
 
-/* ---------- HUD: contador de minas, botón de reinicio, cronómetro ---------- */
+/* =========================================================
+   Los 4 elementos de información: Nivel, Tiempo, Minas, Reiniciar.
+   Mismo estilo visual entre los cuatro (borde, radio, tipografía) en
+   cada tamaño de pantalla — Nivel es la única excepción deliberada en
+   móvil/tablet (texto pequeño sin caja, ver .bm-info--nivel más abajo).
+   ========================================================= */
 
-.bm-hud {
-  flex-shrink: 0;
-  display: flex;
+/* Fila tiempo/reiniciar/minas en móvil/tablet: grid de 3 columnas para
+   que reiniciar quede centrado sin depender del ancho de los otros dos.
+   En escritorio "desaparece" (display:contents) para que sus tres hijos
+   pasen a ser ítems directos de .bm-panel (flex column) y se reordenen
+   con "order" junto a Nivel. */
+.bm-hud-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border-standard);
-  border-radius: var(--bm-radius);
-  padding: 10px 16px;
-  margin-bottom: 10px;
+  gap: 8px;
 }
 
-.bm-hud-stat {
+@media (min-width: 1024px) {
+  .bm-hud-row { display: contents; }
+  .bm-info--nivel { order: 1; }
+  .bm-info--tiempo { order: 2; }
+  .bm-info--minas { order: 3; }
+  .bm-reset { order: 4; }
+}
+
+.bm-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 56px;
+  justify-content: center;
+  gap: 2px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border-standard);
+  border-radius: var(--bm-radius);
+  padding: 8px 12px;
+  font-family: var(--font-family-base);
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
-.bm-hud-label {
-  font-family: var(--font-family-base);
-  font-size: 11px;
+.bm-info--tiempo { justify-self: start; }
+.bm-info--minas { justify-self: end; }
+
+.bm-info-label {
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -177,55 +265,135 @@
   opacity: 0.55;
 }
 
-.bm-hud-value {
-  font-family: var(--font-family-base);
-  font-size: 22px;
+.bm-info-value {
+  font-size: 17px;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
   color: var(--color-wordmark-dark);
+  font-variant-numeric: tabular-nums;
 }
 
+@media (min-width: 640px) {
+  .bm-info { padding: 10px 18px; }
+  .bm-info-label { font-size: 11px; }
+  .bm-info-value { font-size: 19px; }
+}
+
+/* ---- Nivel: en móvil/tablet es solo texto pequeño centrado, sin caja;
+   en escritorio se convierte en una caja más, igual que las otras tres. ---- */
+
+.bm-info--nivel {
+  flex-direction: row;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  min-height: 0;
+}
+.bm-info--nivel .bm-info-label { font-size: 11px; }
+.bm-info--nivel .bm-info-value { font-size: 12px; font-weight: 600; }
+
+@media (min-width: 640px) {
+  .bm-info--nivel .bm-info-label { font-size: 12px; }
+  .bm-info--nivel .bm-info-value { font-size: 14px; }
+}
+
+@media (min-width: 1024px) {
+  .bm-info--nivel {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border-standard);
+    padding: 10px 18px;
+    min-height: 44px;
+  }
+  .bm-info--nivel .bm-info-label { font-size: 11px; }
+  .bm-info--nivel .bm-info-value { font-size: 17px; }
+}
+
+/* ---- Reiniciar: mismo borde/radio/tipografía que .bm-info, con icono
+   de recarga; en móvil solo el icono (botón compacto ≥44px para el
+   dedo), a partir de tablet añade el texto "Reiniciar". ---- */
+
 .bm-reset {
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  font-size: 20px;
-  line-height: 1;
+  justify-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  background: var(--color-cell-closed-bg);
-  border-top: 2px solid var(--color-cell-bevel-light);
-  border-left: 2px solid var(--color-cell-bevel-light);
-  border-bottom: 2px solid var(--color-cell-bevel-dark);
-  border-right: 2px solid var(--color-cell-bevel-dark);
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border-standard);
   border-radius: var(--bm-radius);
+  color: var(--color-brand-accent);
   font-family: var(--font-family-base);
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
 }
+.bm-reset:hover { background: var(--color-page-bg); border-color: var(--color-brand-accent); }
 .bm-reset:active { transform: translateY(1px); }
 .bm-reset:focus-visible {
   outline: 3px solid var(--color-num-1);
   outline-offset: 2px;
 }
 
+.bm-reset-icon { width: 20px; height: 20px; flex-shrink: 0; }
+.bm-reset-text { display: none; font-size: 13px; }
+
+@media (min-width: 640px) {
+  .bm-reset {
+    width: auto;
+    height: auto;
+    min-height: 44px;
+    padding: 10px 18px;
+  }
+  .bm-reset-text { display: inline; }
+}
+
+@media (min-width: 1024px) {
+  .bm-reset { width: 100%; }
+}
+
 /* ---------- Tablero ----------
-   Ancho máximo explícito (--bm-board-max-width, 440px) + columnas 1fr +
-   aspect-ratio:1 en cada celda: el tablero nunca depende de un alto
-   implícito del navegador. Con este ancho, el padding/gap de arriba dan
-   celdas de ~44px en tablet/escritorio (dentro del rango 40-48px pedido)
-   y se encoge solo por debajo de 440px de contenedor disponible (móvil),
-   sin dejar nunca de ser cuadrado ni de caber en el ancho de pantalla. */
+   Móvil/tablet: comparten el mismo patrón — el ancho disponible manda
+   (--bm-board-max-width como techo, se encoge por debajo de él; el alto
+   del tablero es intrínseco, se deriva del ancho a través del
+   aspect-ratio de cada celda).
+
+   Escritorio: con el panel ya movido al lateral hay que llenar el alto
+   disponible SIN desbordar el ancho de su columna — el tablero debe
+   medir min(ancho disponible, alto disponible). Un simple "height:100%"
+   no sirve: si el ancho resultante se recorta luego con max-width, el
+   alto ya no se reajusta a la vez (aspect-ratio solo deriva UNA
+   dimensión de la otra, no resuelve las dos como un sistema). La
+   solución es container queries de tamaño completo en el envoltorio
+   (container-type:size) para pedir min(100cqw, 100cqh) en el propio
+   tablero: el "cuadrado más grande que cabe" en ambos ejes a la vez. */
 
 .bm-board-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
   display: flex;
+  align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .bm-board-wrap {
+    container-type: size; /* habilita cqw/cqh para el hijo .bm-board */
+  }
 }
 
 .bm-board {
   width: 100%;
   max-width: var(--bm-board-max-width);
+  aspect-ratio: 1;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
@@ -236,6 +404,13 @@
   padding: var(--bm-board-padding);
   box-sizing: border-box;
   container-type: inline-size; /* para que el tamaño de los números (cqi) siga al ancho real del tablero */
+}
+
+@media (min-width: 1024px) {
+  .bm-board {
+    width: min(100cqw, 100cqh, var(--bm-board-max-width));
+    max-width: none; /* el techo ya está incluido dentro del min() de arriba */
+  }
 }
 
 .bm-cell {
@@ -255,16 +430,18 @@
   touch-action: manipulation;  /* evita el zoom por doble toque sin bloquear el scroll de la página */
 }
 
-/* Casilla sin abrir: bisel realzado (claro arriba-izquierda, oscuro abajo-derecha) */
+/* Casilla sin abrir: color de marca con bisel realzado (variante clara
+   arriba-izquierda, variante oscura abajo-derecha). SIN CAMBIOS respecto
+   a antes de este encargo. */
 .bm-cell--closed {
   background: var(--color-cell-closed-bg);
-  border-top: 2px solid var(--color-cell-bevel-light);
-  border-left: 2px solid var(--color-cell-bevel-light);
-  border-bottom: 2px solid var(--color-cell-bevel-dark);
-  border-right: 2px solid var(--color-cell-bevel-dark);
+  border-top: 2px solid var(--color-cell-closed-bevel-light);
+  border-left: 2px solid var(--color-cell-closed-bevel-light);
+  border-bottom: 2px solid var(--color-cell-closed-bevel-dark);
+  border-right: 2px solid var(--color-cell-closed-bevel-dark);
 }
 
-/* Casilla abierta: bisel invertido, sensación de hundimiento */
+/* Casilla abierta: bisel invertido, sensación de hundimiento. SIN CAMBIOS. */
 .bm-cell--open {
   background: var(--color-card-bg);
   border-top: 2px solid var(--color-cell-bevel-dark);
@@ -283,14 +460,16 @@
 .bm-cell--n7 { color: var(--color-num-7); }
 .bm-cell--n8 { color: var(--color-num-8); }
 
-/* ---------- Bandera ----------
-   Mismo lenguaje visual que el logo de la marca: palo recto de extremo
-   a extremo y banderín triangular pegado a la parte superior. Icono al
-   80% de la celda (igual que los números), inyectado como SVG desde
-   render.js para reproducir exactamente el trazo del logo. */
+/* ---------- Bandera (ÚNICO cambio permitido dentro del tablero) ----------
+   La casilla sigue con el mismo fondo naranja de "sin abrir" (no se
+   toca .bm-cell--closed). Encima se pinta, vía SVG inyectado desde
+   render.js: un círculo claro/blanco roto (~88% de la celda, dentro del
+   85-90% pedido) para dar contraste, y sobre él la bandera con las
+   proporciones EXACTAS del logotipo de la marca (mismo mástil
+   redondeado + banderín triangular que el favicon/cabecera). */
 
 .bm-flag-icon {
-  height: 80%;
+  height: 96%;
   width: auto;
   display: block;
   pointer-events: none;
@@ -315,14 +494,13 @@
 /* ---------- Mensaje de estado (victoria / derrota) ---------- */
 
 .bm-mensaje {
-  flex-shrink: 0;
   text-align: center;
-  min-height: 20px;
-  margin-top: 10px;
+  min-height: 18px;
   font-family: var(--font-family-base);
   font-weight: 600;
   font-size: 14px;
 }
+
 .bm-mensaje--ganada { color: var(--color-num-2); }
 .bm-mensaje--perdida { color: var(--color-flag-pennant); }
 

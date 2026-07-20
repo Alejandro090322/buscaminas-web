@@ -37,34 +37,48 @@
 </header>
 
 <main>
-  <div class="container bm-page">
-    <p class="eyebrow bm-eyebrow">Jugar</p>
-    <h1 class="bm-title">Nivel Principiante</h1>
+  <div class="bm-page">
+    <div class="bm-layout">
 
-    <div class="bm-game" id="bm-game">
-      <div class="bm-hud">
-        <div class="bm-hud-stat">
-          <span class="bm-hud-label">Minas</span>
-          <span class="bm-hud-value" id="bm-contador-minas" aria-live="polite">10</span>
+      <div class="bm-panel">
+        <div class="bm-info bm-info--nivel">
+          <span class="bm-info-label">Nivel</span>
+          <span class="bm-info-value">Principiante</span>
         </div>
 
-        <button type="button" class="bm-reset" id="bm-reset" aria-label="Nueva partida">🙂</button>
+        <div class="bm-hud-row">
+          <div class="bm-info bm-info--tiempo">
+            <span class="bm-info-label">Tiempo</span>
+            <span class="bm-info-value" id="bm-cronometro" aria-live="polite">0</span>
+          </div>
 
-        <div class="bm-hud-stat">
-          <span class="bm-hud-label">Tiempo</span>
-          <span class="bm-hud-value" id="bm-cronometro" aria-live="polite">0</span>
+          <button type="button" class="bm-reset" id="bm-reset" aria-label="Reiniciar partida">
+            <svg class="bm-reset-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="21 3 21 9 15 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="bm-reset-text">Reiniciar</span>
+          </button>
+
+          <div class="bm-info bm-info--minas">
+            <span class="bm-info-label">Minas</span>
+            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">10</span>
+          </div>
         </div>
       </div>
 
-      <div class="bm-board-wrap">
-        <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9"></div>
+      <div class="bm-main">
+        <div class="bm-board-wrap">
+          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9"></div>
+        </div>
+
+        <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
+        <div class="ad-slot bm-ad-slot ad-slot--placeholder-hidden" aria-hidden="true">Espacio reservado para anuncio</div>
       </div>
 
-      <p class="bm-mensaje" id="bm-mensaje" role="status" aria-live="assertive"></p>
     </div>
 
-    <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
-    <div class="ad-slot bm-ad-slot ad-slot--placeholder-hidden" aria-hidden="true">Espacio reservado para anuncio</div>
+    <p class="bm-mensaje" id="bm-mensaje" role="status" aria-live="assertive"></p>
   </div>
 </main>
 

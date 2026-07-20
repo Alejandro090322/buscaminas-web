@@ -10,14 +10,20 @@
 
   var Board = window.BuscaminasBoard;
 
-  // Icono de bandera: mismo lenguaje visual que el logo de la marca (palo
-  // recto de extremo a extremo con extremos redondeados + banderín
-  // triangular pegado a la parte superior), a diferencia del logo aquí
-  // ocupa el 80% de la casilla vía la clase .bm-flag-icon.
+  // Icono de bandera: círculo de contraste (claro/blanco roto) detrás +
+  // bandera con las mismas proporciones EXACTAS que el logotipo de la
+  // marca (favicon / cabecera): mástil vertical con extremos redondeados
+  // y banderín triangular apuntando a la derecha desde su extremo
+  // superior. Las coordenadas replican 1:1 las del logo (line x=26,
+  // y 16-48 y polygon 26,16 47,23.5 26,31 dentro de una casilla de 56x56
+  // en el SVG original), reexpresadas en un viewBox de 0 a 100 para que
+  // encajen con el resto de la casilla. El fondo de la casilla NO cambia
+  // aquí: sigue siendo el naranja de "sin abrir" definido en el CSS.
   var SVG_BANDERA =
-    '<svg class="bm-flag-icon" viewBox="0 0 22 32" aria-hidden="true">' +
-      '<line x1="4" y1="2" x2="4" y2="30" stroke="var(--color-flag-mast)" stroke-width="4" stroke-linecap="round"/>' +
-      '<polygon points="4,3 20,10 4,18" fill="var(--color-flag-pennant)"/>' +
+    '<svg class="bm-flag-icon" viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle cx="50" cy="50" r="46" fill="var(--color-flag-circle-bg)"/>' +
+      '<line x1="39.3" y1="78.6" x2="39.3" y2="21.4" stroke="var(--color-flag-mast)" stroke-width="7" stroke-linecap="round"/>' +
+      '<polygon points="39.3,21.4 76.8,34.8 39.3,48.2" fill="var(--color-flag-pennant)"/>' +
     '</svg>';
 
   var DURACION_PULSACION_LARGA_MS = 400;
@@ -50,7 +56,7 @@
     actualizarContadorMinas();
     elMensaje.textContent = '';
     elMensaje.className = 'bm-mensaje';
-    elReset.textContent = '🙂';
+    elReset.classList.remove('bm-reset--perdida', 'bm-reset--ganada');
 
     construirCeldas();
     pintarTodo();
@@ -170,12 +176,12 @@
     if (perdida) {
       pintarTodasLasMinas();
       detenerCronometro();
-      elReset.textContent = '😵';
+      elReset.classList.add('bm-reset--perdida');
       elMensaje.textContent = 'Has perdido. Pulsa reiniciar para jugar de nuevo.';
       elMensaje.className = 'bm-mensaje bm-mensaje--perdida';
     } else if (tablero.estado === Board.ESTADO.GANADA) {
       detenerCronometro();
-      elReset.textContent = '😎';
+      elReset.classList.add('bm-reset--ganada');
       elMensaje.textContent = '¡Has ganado!';
       elMensaje.className = 'bm-mensaje bm-mensaje--ganada';
     }
