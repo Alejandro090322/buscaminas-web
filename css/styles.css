@@ -3,6 +3,27 @@
    Aplicado según informe-identidad-marca.md
    ========================================================= */
 
+/* ---------------------------------------------------------
+   Breakpoints estándar del proyecto
+   Este es el archivo de referencia: cualquier página nueva (incluidos
+   los próximos niveles del juego, Intermedio y Experto) debe usar
+   exactamente estos tres rangos, mobile-first (estilos base = móvil,
+   luego se añade con min-width):
+
+     Móvil:      hasta 639px            → sin media query (estilos base)
+     Tablet:     640px – 1023px         → @media (min-width: 640px)
+     Escritorio: 1024px en adelante     → @media (min-width: 1024px)
+
+   Las media queries de CSS no admiten var(), así que estas variables
+   son solo la referencia documentada (y quedan disponibles por si algún
+   día se necesitan desde JS vía getComputedStyle) — dentro de un
+   @media hay que repetir el número literal (640 / 1024), no --breakpoint-*.
+   --------------------------------------------------------- */
+:root {
+  --breakpoint-tablet: 640px;
+  --breakpoint-desktop: 1024px;
+}
+
 :root {
   /* ---- Color de marca ---- */
   --brand: #FF6F00;

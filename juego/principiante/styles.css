@@ -3,6 +3,16 @@
    Hoja de estilos autocontenida para este componente: define y usa sus
    propios tokens de marca (mismo criterio que tutorial/index.html, que
    tampoco depende de css/styles.css).
+
+   Breakpoints: este proyecto usa los estándares definidos y documentados
+   en css/styles.css (bloque ":root" al principio del archivo):
+     Móvil:      hasta 639px            (estilos base, mobile-first)
+     Tablet:     640px – 1023px         @media (min-width: 640px)
+     Escritorio: 1024px en adelante     @media (min-width: 1024px)
+   Reutiliza exactamente estos mismos valores literales (640 / 1024) en
+   los próximos niveles (Intermedio, Experto): las media queries de CSS
+   no admiten var(), así que no hay forma de "importar" el número, solo
+   de copiarlo tal cual desde aquí.
    ========================================================= */
 
 :root {
@@ -43,44 +53,57 @@
 
   /* ---- Layout propio del componente (no son tokens de marca) ---- */
   --bm-radius: 8px;
-  --bm-cell-gap: 3px;
+  --bm-board-max-width: 440px; /* referencia de escritorio pedida: da celdas ~44px con el padding/gap de abajo */
+  --bm-board-padding: 6px;     /* móvil: algo más ajustado para ganar sitio */
+  --bm-cell-gap: 2px;          /* móvil */
+}
+
+@media (min-width: 640px) {
+  :root {
+    --bm-board-padding: 8px;
+    --bm-cell-gap: 3px;
+  }
 }
 
 /* =========================================================
-   Página "Jugar": todo debe caber en un primer vistazo, sin que
-   el usuario tenga que desplazarse. El tablero ocupa el espacio
-   sobrante entre la cabecera y el pie, dejando siempre hueco fijo
-   para el futuro anuncio.
+   Página "Jugar"
    ========================================================= */
 
 .page-jugar {
-  height: 100vh;
-  height: 100dvh; /* mejor soporte de barras de navegador móviles */
+  min-height: 100vh;
+  min-height: 100dvh; /* mejor soporte de barras de navegador móviles */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
-.page-jugar .site-header {
-  flex-shrink: 0;
-  position: static; /* no hace falta "sticky": esta página no hace scroll */
-}
-
+/* "main" solo crece como ítem flex de body (empuja el footer abajo si el
+   contenido es corto, patrón sticky-footer); a propósito NO es display:flex
+   por dentro, para que .bm-page (que reutiliza la clase compartida
+   .container, con su propio margin:0 auto) se comporte como un bloque
+   normal en vez de encogerse a su contenido por los márgenes automáticos
+   dentro de un contenedor flex. */
 .page-jugar main {
   flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 .bm-page {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
   padding-top: 14px;
-  padding-bottom: 10px;
+  padding-bottom: 16px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+@media (min-width: 640px) {
+  .bm-page {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bm-page {
+    padding-top: 24px;
+  }
 }
 
 .bm-eyebrow { margin-bottom: 2px; }
@@ -92,11 +115,7 @@
 }
 
 .bm-game {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  max-width: 480px;
+  max-width: var(--bm-board-max-width);
   width: 100%;
   margin: 0 auto;
   font-family: var(--font-family-base);
@@ -110,13 +129,20 @@
 
 /* Hueco reservado para el anuncio futuro: a diferencia del resto del sitio
    (donde .ad-slot permanece oculto hasta activar AdSense), en esta página
-   se deja visible desde ya para reservarle sitio fijo en el layout. */
+   se deja con espacio propio en el layout para cuando se active. */
 .bm-ad-slot {
   display: flex;
   flex-shrink: 0;
   min-height: 48px;
   margin: 10px 0 0;
   font-family: var(--font-family-base);
+}
+
+/* Ocultación temporal del placeholder de anuncio: sigue en el DOM (no se
+   borra el contenedor) para cuando se integre un proveedor real, pero no
+   debe verse ni ocupar espacio mientras tanto. */
+.ad-slot--placeholder-hidden {
+  display: none;
 }
 
 /* ---------- HUD: contador de minas, botón de reinicio, cronómetro ---------- */
@@ -184,46 +210,43 @@
   outline-offset: 2px;
 }
 
-/* ---------- Tablero ---------- */
-/* El tablero rellena el espacio vertical sobrante (flex:1) manteniéndose
-   cuadrado (aspect-ratio) y sin desbordar el ancho disponible: así se
-   adapta solo a cualquier alto de pantalla sin provocar scroll. */
+/* ---------- Tablero ----------
+   Ancho máximo explícito (--bm-board-max-width, 440px) + columnas 1fr +
+   aspect-ratio:1 en cada celda: el tablero nunca depende de un alto
+   implícito del navegador. Con este ancho, el padding/gap de arriba dan
+   celdas de ~44px en tablet/escritorio (dentro del rango 40-48px pedido)
+   y se encoge solo por debajo de 440px de contenedor disponible (móvil),
+   sin dejar nunca de ser cuadrado ni de caber en el ancho de pantalla. */
 
 .bm-board-wrap {
-  flex: 1 1 auto;
-  min-height: 0;
   display: flex;
-  align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .bm-board {
-  height: 100%;
-  max-height: 100%;
-  width: auto;
-  max-width: 100%;
-  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: var(--bm-board-max-width);
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(9, 1fr);
   gap: var(--bm-cell-gap);
   background: var(--color-border-standard);
   border: 1px solid var(--color-border-standard);
   border-radius: var(--bm-radius);
-  padding: 8px;
+  padding: var(--bm-board-padding);
   box-sizing: border-box;
   container-type: inline-size; /* para que el tamaño de los números (cqi) siga al ancho real del tablero */
 }
 
 .bm-cell {
+  aspect-ratio: 1; /* casilla siempre cuadrada: ancho = alto, sin fijarlos por separado */
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   font-family: var(--font-family-base);
   font-weight: 700;
-  font-size: 9cqi; /* ~80% de la altura de cada celda (celda ≈ 1/9 del contenedor) */
+  font-size: 9cqi; /* ~80% de la altura de cada celda (celda ≈ 1/9 del ancho del contenedor) */
   border-radius: var(--bm-radius);
   cursor: pointer;
   user-select: none;
