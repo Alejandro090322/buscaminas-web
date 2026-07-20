@@ -58,7 +58,7 @@
     background:var(--card-bg);
     position:sticky; top:0; z-index:20;
   }
-  .logo{display:flex; align-items:center; gap:10px;}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit;}
   .logo-tile{
     width:34px; height:34px; border-radius:8px;
     background:var(--cell-covered);
@@ -299,7 +299,7 @@
 <body>
 
 <header class="site-header">
-  <div class="logo">
+  <a href="../index.html" class="logo">
     <div class="logo-tile">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <line x1="7" y1="3" x2="7" y2="21" style="stroke:var(--gray-pole); stroke-width:2; stroke-linecap:round"/>
@@ -307,7 +307,7 @@
       </svg>
     </div>
     <span class="wordmark"><span class="wordmark-dark">Buscaminas</span> <span class="wordmark-accent">Experto</span></span>
-  </div>
+  </a>
   <span class="header-sub">Entrenador · Nivel principiante</span>
   <a href="../entrenador.html" class="back-link">&larr; Volver al entrenador</a>
 </header>

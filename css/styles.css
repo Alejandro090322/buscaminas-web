@@ -443,6 +443,7 @@ a:hover { text-decoration: underline; }
   margin-top: 18px;
 }
 .pill {
+  display: block;
   font-size: 0.82rem;
   font-weight: 500;
   background: var(--surface);
@@ -450,6 +451,31 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius-tile);
   padding: 8px 12px;
   color: var(--ink-soft);
+}
+
+a.pill-active {
+  color: var(--ink);
+  border-color: var(--brand);
+  font-weight: 600;
+}
+a.pill-active:hover {
+  background: var(--tip-bg);
+  text-decoration: none;
+}
+
+.pill-locked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: not-allowed;
+}
+.pill-locked-tag {
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--flag-pennant);
 }
 
 @media (max-width: 860px) {

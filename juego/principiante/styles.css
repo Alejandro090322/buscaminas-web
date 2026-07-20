@@ -43,19 +43,86 @@
 
   /* ---- Layout propio del componente (no son tokens de marca) ---- */
   --bm-radius: 8px;
-  --bm-cell-size: clamp(30px, 9vw, 42px);
   --bm-cell-gap: 3px;
 }
 
+/* =========================================================
+   Página "Jugar": todo debe caber en un primer vistazo, sin que
+   el usuario tenga que desplazarse. El tablero ocupa el espacio
+   sobrante entre la cabecera y el pie, dejando siempre hueco fijo
+   para el futuro anuncio.
+   ========================================================= */
+
+.page-jugar {
+  height: 100vh;
+  height: 100dvh; /* mejor soporte de barras de navegador móviles */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-jugar .site-header {
+  flex-shrink: 0;
+  position: static; /* no hace falta "sticky": esta página no hace scroll */
+}
+
+.page-jugar main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bm-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+  padding-bottom: 10px;
+}
+
+.bm-eyebrow { margin-bottom: 2px; }
+
+.bm-title {
+  margin-bottom: 10px;
+  font-size: 26px;
+  line-height: 1.2;
+}
+
 .bm-game {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   max-width: 480px;
+  width: 100%;
   margin: 0 auto;
+  font-family: var(--font-family-base);
+}
+
+.page-jugar .site-footer {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 10px 0;
+}
+
+/* Hueco reservado para el anuncio futuro: a diferencia del resto del sitio
+   (donde .ad-slot permanece oculto hasta activar AdSense), en esta página
+   se deja visible desde ya para reservarle sitio fijo en el layout. */
+.bm-ad-slot {
+  display: flex;
+  flex-shrink: 0;
+  min-height: 48px;
+  margin: 10px 0 0;
   font-family: var(--font-family-base);
 }
 
 /* ---------- HUD: contador de minas, botón de reinicio, cronómetro ---------- */
 
 .bm-hud {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -63,8 +130,8 @@
   background: var(--color-card-bg);
   border: 1px solid var(--color-border-standard);
   border-radius: var(--bm-radius);
-  padding: 12px 16px;
-  margin-bottom: 12px;
+  padding: 10px 16px;
+  margin-bottom: 10px;
 }
 
 .bm-hud-stat {
@@ -93,10 +160,10 @@
 }
 
 .bm-reset {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -118,22 +185,35 @@
 }
 
 /* ---------- Tablero ---------- */
+/* El tablero rellena el espacio vertical sobrante (flex:1) manteniéndose
+   cuadrado (aspect-ratio) y sin desbordar el ancho disponible: así se
+   adapta solo a cualquier alto de pantalla sin provocar scroll. */
 
 .bm-board-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
+  align-items: center;
   justify-content: center;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .bm-board {
+  height: 100%;
+  max-height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
   display: grid;
-  grid-template-columns: repeat(9, var(--bm-cell-size));
-  grid-auto-rows: var(--bm-cell-size);
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
   gap: var(--bm-cell-gap);
   background: var(--color-border-standard);
   border: 1px solid var(--color-border-standard);
   border-radius: var(--bm-radius);
   padding: 8px;
+  box-sizing: border-box;
+  container-type: inline-size; /* para que el tamaño de los números (cqi) siga al ancho real del tablero */
 }
 
 .bm-cell {
@@ -143,7 +223,7 @@
   position: relative;
   font-family: var(--font-family-base);
   font-weight: 700;
-  font-size: calc(var(--bm-cell-size) * 0.8); /* números ocupan ~80% de la altura de la celda */
+  font-size: 9cqi; /* ~80% de la altura de cada celda (celda ≈ 1/9 del contenedor) */
   border-radius: var(--bm-radius);
   cursor: pointer;
   user-select: none;
@@ -180,25 +260,17 @@
 .bm-cell--n7 { color: var(--color-num-7); }
 .bm-cell--n8 { color: var(--color-num-8); }
 
-/* ---------- Bandera ---------- */
+/* ---------- Bandera ----------
+   Mismo lenguaje visual que el logo de la marca: palo recto de extremo
+   a extremo y banderín triangular pegado a la parte superior. Icono al
+   80% de la celda (igual que los números), inyectado como SVG desde
+   render.js para reproducir exactamente el trazo del logo. */
 
-.bm-cell--flagged::before {
-  content: '';
-  position: absolute;
-  width: 2px;
-  height: 46%;
-  background: var(--color-flag-mast);
-  bottom: 18%;
-}
-.bm-cell--flagged::after {
-  content: '';
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  width: 34%;
-  height: 26%;
-  background: var(--color-flag-pennant);
-  clip-path: polygon(0 0, 100% 25%, 0 50%);
+.bm-flag-icon {
+  height: 80%;
+  width: auto;
+  display: block;
+  pointer-events: none;
 }
 
 /* ---------- Mina ---------- */
@@ -220,11 +292,13 @@
 /* ---------- Mensaje de estado (victoria / derrota) ---------- */
 
 .bm-mensaje {
+  flex-shrink: 0;
   text-align: center;
-  min-height: 22px;
-  margin-top: 14px;
+  min-height: 20px;
+  margin-top: 10px;
   font-family: var(--font-family-base);
   font-weight: 600;
+  font-size: 14px;
 }
 .bm-mensaje--ganada { color: var(--color-num-2); }
 .bm-mensaje--perdida { color: var(--color-flag-pennant); }

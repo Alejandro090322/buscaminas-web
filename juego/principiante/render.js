@@ -10,6 +10,16 @@
 
   var Board = window.BuscaminasBoard;
 
+  // Icono de bandera: mismo lenguaje visual que el logo de la marca (palo
+  // recto de extremo a extremo con extremos redondeados + banderín
+  // triangular pegado a la parte superior), a diferencia del logo aquí
+  // ocupa el 80% de la casilla vía la clase .bm-flag-icon.
+  var SVG_BANDERA =
+    '<svg class="bm-flag-icon" viewBox="0 0 22 32" aria-hidden="true">' +
+      '<line x1="4" y1="2" x2="4" y2="30" stroke="var(--color-flag-mast)" stroke-width="4" stroke-linecap="round"/>' +
+      '<polygon points="4,3 20,10 4,18" fill="var(--color-flag-pennant)"/>' +
+    '</svg>';
+
   var DURACION_PULSACION_LARGA_MS = 400;
   var TOLERANCIA_MOVIMIENTO_PX = 10; // si el dedo/puntero se mueve más que esto, se cancela la bandera (probablemente es scroll)
 
@@ -211,6 +221,7 @@
       }
     } else if (celda.bandera) {
       div.classList.add('bm-cell--closed', 'bm-cell--flagged');
+      div.innerHTML = SVG_BANDERA;
       div.setAttribute('aria-label', 'Casilla con bandera');
     } else {
       div.classList.add('bm-cell--closed');

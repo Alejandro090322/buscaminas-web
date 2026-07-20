@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="../css/styles.css">
 <link rel="stylesheet" href="principiante/styles.css">
 </head>
-<body>
+<body class="page-jugar">
 
 <header class="site-header">
   <div class="container">
@@ -37,38 +37,34 @@
 </header>
 
 <main>
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow">Jugar</p>
-      <h1>Nivel Principiante</h1>
-      <p style="max-width:52ch;">
-        Tablero 9×9 con 10 minas. Mantén pulsada una casilla para poner o
-        quitar una bandera; toca o haz click para abrirla.
-      </p>
+  <div class="container bm-page">
+    <p class="eyebrow bm-eyebrow">Jugar</p>
+    <h1 class="bm-title">Nivel Principiante</h1>
 
-      <div class="bm-game" id="bm-game">
-        <div class="bm-hud">
-          <div class="bm-hud-stat">
-            <span class="bm-hud-label">Minas</span>
-            <span class="bm-hud-value" id="bm-contador-minas" aria-live="polite">10</span>
-          </div>
-
-          <button type="button" class="bm-reset" id="bm-reset" aria-label="Nueva partida">🙂</button>
-
-          <div class="bm-hud-stat">
-            <span class="bm-hud-label">Tiempo</span>
-            <span class="bm-hud-value" id="bm-cronometro" aria-live="polite">0</span>
-          </div>
+    <div class="bm-game" id="bm-game">
+      <div class="bm-hud">
+        <div class="bm-hud-stat">
+          <span class="bm-hud-label">Minas</span>
+          <span class="bm-hud-value" id="bm-contador-minas" aria-live="polite">10</span>
         </div>
 
-        <div class="bm-board-wrap">
-          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9"></div>
-        </div>
+        <button type="button" class="bm-reset" id="bm-reset" aria-label="Nueva partida">🙂</button>
 
-        <p class="bm-mensaje" id="bm-mensaje" role="status" aria-live="assertive"></p>
+        <div class="bm-hud-stat">
+          <span class="bm-hud-label">Tiempo</span>
+          <span class="bm-hud-value" id="bm-cronometro" aria-live="polite">0</span>
+        </div>
       </div>
+
+      <div class="bm-board-wrap">
+        <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9"></div>
+      </div>
+
+      <p class="bm-mensaje" id="bm-mensaje" role="status" aria-live="assertive"></p>
     </div>
-  </section>
+
+    <div class="ad-slot bm-ad-slot" aria-hidden="true">Espacio reservado para anuncio</div>
+  </div>
 </main>
 
 <footer class="site-footer">
