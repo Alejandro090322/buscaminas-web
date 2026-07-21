@@ -3,47 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jugar al Buscaminas — Nivel Principiante (9x9) — Buscaminas Experto</title>
-<meta name="description" content="Juega gratis al Buscaminas nivel Principiante, tablero 9x9 con 10 minas, online y sin descargas ni registro.">
+<title>Jugar al Buscaminas — Nivel Intermedio (16x16) — Buscaminas Experto</title>
+<meta name="description" content="Juega gratis al Buscaminas nivel Intermedio, tablero 16x16 con 40 minas, online y sin descargas ni registro.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../css/styles.css">
-<link rel="stylesheet" href="principiante/styles.css">
+<link rel="stylesheet" href="intermedio/styles.css">
 </head>
 <body class="page-jugar">
-
-<header class="site-header">
-  <div class="container">
-    <a href="../index.html" class="brand">
-      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-  <rect x="4" y="4" width="56" height="56" rx="8" fill="#E3E1DA"/>
-  <path d="M7 57 L7 7 L57 7" stroke="#F4F3EF" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M9 59 L59 59 L59 9" stroke="#B4B2A9" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <line x1="26" y1="48" x2="26" y2="16" stroke="#6B6A64" stroke-width="4" stroke-linecap="round"/>
-  <polygon points="26,16 47,23.5 26,31" fill="#E53935"/>
-</svg></span>
-      <span class="brand-word-dark">Buscaminas</span> <span class="brand-word-accent">Experto</span>
-    </a>
-    <nav class="main-nav" aria-label="Navegación principal">
-      <a href="../index.html">Inicio</a>
-      <a href="../entrenador.html">Entrenador</a>
-    </nav>
-    <button class="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-    </button>
-  </div>
-</header>
 
 <main>
   <div class="bm-page">
     <div class="bm-layout">
 
       <div class="bm-panel">
+        <a href="../index.html" class="bm-logo" aria-label="Buscaminas Experto — Ir a inicio">
+          <span class="bm-logo-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <rect x="4" y="4" width="56" height="56" rx="8" fill="#E3E1DA"/>
+  <path d="M7 57 L7 7 L57 7" stroke="#F4F3EF" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M9 59 L59 59 L59 9" stroke="#B4B2A9" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <line x1="26" y1="48" x2="26" y2="16" stroke="#6B6A64" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="26,16 47,23.5 26,31" fill="#E53935"/>
+</svg></span>
+          <span class="bm-logo-word"><span class="bm-logo-word-dark">Buscaminas</span> <span class="bm-logo-word-accent">Experto</span></span>
+        </a>
+
         <div class="bm-info bm-info--nivel">
           <span class="bm-info-label">Nivel</span>
-          <span class="bm-info-value">Principiante</span>
+          <span class="bm-info-value">Intermedio</span>
         </div>
 
         <div class="bm-hud-row">
@@ -62,14 +51,14 @@
 
           <div class="bm-info bm-info--minas">
             <span class="bm-info-label">Minas</span>
-            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">10</span>
+            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">40</span>
           </div>
         </div>
       </div>
 
       <div class="bm-main">
         <div class="bm-board-wrap">
-          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9" data-filas="9" data-columnas="9" data-minas="10"></div>
+          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 16 por 16" data-filas="16" data-columnas="16" data-minas="40"></div>
         </div>
 
         <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
@@ -95,8 +84,8 @@
   </div>
 </footer>
 
-<script src="../js/nav.js"></script>
 <script src="motor/board.js"></script>
 <script src="motor/render.js"></script>
+<script src="intermedio/layout.js"></script>
 </body>
 </html>

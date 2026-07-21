@@ -24,6 +24,58 @@
   --breakpoint-desktop: 1024px;
 }
 
+/* ---------------------------------------------------------
+   Política única de scroll para tableros grandes (Intermedio, Experto)
+   Tamaño mínimo de celda jugable de referencia: ~28-32px de lado.
+
+   Regla: en tablet y escritorio NUNCA hay scroll — el tablero se encoge
+   con fluidez (grid "repeat(N, 1fr)" + aspect-ratio, sin tamaño de celda
+   fijo por breakpoint) para caber siempre en el ancho/alto disponible,
+   con prioridad absoluta sobre el tamaño mínimo de celda de referencia.
+   Solo en MÓVIL se aplica ese mínimo (--bm-cell-min) como un suelo real:
+   si el ancho disponible no llega a ese suelo, el contenedor del tablero
+   pasa a scroll (horizontal, y vertical si hiciera falta) en vez de
+   seguir encogiendo la celda por debajo del mínimo.
+
+   Esto NO es una elección arbitraria: al ser el tablero cuadrado (mismo
+   número de filas y columnas, o cualquier aspect-ratio fijo), un suelo de
+   ANCHO fuerza también el ALTO a ese mismo suelo. En tablet/escritorio el
+   eje que más aprieta suele ser el ALTO (cabecera + HUD + hueco de
+   anuncio compitiendo con el tablero por una ventana que puede no ser muy
+   alta, p. ej. 1280x720), así que aplicar ahí el mismo suelo que en móvil
+   produce fácilmente desbordamiento vertical no deseado. Por eso el suelo
+   con scroll de reserva se limita a móvil (donde el eje que aprieta es el
+   ANCHO) y se anula explícitamente en tablet/escritorio.
+
+   Implementación de referencia (ver juego/intermedio/styles.css y
+   juego/intermedio/layout.js): en móvil, min-width/min-height en
+   ".bm-board" (calculados a partir de --bm-cols/--bm-rows/--bm-cell-min)
+   con ".bm-board-wrap" en overflow:auto — CSS puro, sin JS. En tablet y
+   escritorio (@media min-width:640px) ese suelo se anula
+   (min-width:0/min-height:0) y el tamaño real del tablero lo fija
+   JAVASCRIPT (juego/intermedio/layout.js), NO CSS: se probaron dos
+   técnicas CSS-only (container queries de tamaño con min(100cqw,100cqh),
+   y aspect-ratio con max-height/height:100%) y ambas fallan en cuanto
+   .bm-layout pasa a columna (patrón de tablet: panel arriba, tablero
+   debajo) — un alto derivado de flex-grow anidado en columna, a
+   diferencia de un "stretch" directo en fila, no se comporta como un
+   alto "definido" fiable para esas técnicas en este motor (cqh resolvía
+   a 0 en un caso; en el otro el tablero salía rectangular en vez de
+   cuadrado). layout.js mide con ResizeObserver el hueco real de
+   ".bm-board-wrap" y fija width/height de "#bm-board" en píxeles
+   directamente, evitando esa resolución CSS frágil. Esta es la regla
+   definitiva del proyecto: para Experto (30x16) se copia tal cual
+   (styles.css cambiando --bm-cols/--bm-rows; layout.js sin tocar, ya lee
+   las dimensiones de data-filas/data-columnas).
+
+   Nota táctil: en tableros con contenedor de scroll, las celdas usan
+   touch-action:none (en vez de manipulation, que sí usa Principiante,
+   que nunca necesita scroll) para que el long-press de banderear y el
+   doble-toque de chording no disparen paneo/zoom nativo; el arrastre
+   normal para desplazar el tablero sigue funcionando si empieza fuera
+   de una celda (en el padding/gap del tablero).
+   --------------------------------------------------------- */
+
 :root {
   /* ---- Color de marca ---- */
   --brand: #FF6F00;
