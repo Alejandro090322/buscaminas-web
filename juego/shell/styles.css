@@ -1,0 +1,607 @@
+/* =========================================================
+   Buscaminas Experto — Shell del juego (Principiante, Intermedio, Experto)
+   Hoja de estilos generalizada y compartida por los 3 niveles: define los
+   tokens de marca (mismo esquema corto que css/styles.css: --brand,
+   --word-dark, --n1..--n8...) y toda la estructura/mecánica del tablero,
+   sin duplicar nada por nivel. Sigue siendo autocontenida (no importa
+   css/styles.css): solo comparte el NOMBRE del esquema de variables, no
+   el archivo.
+
+   Lo único que varía entre niveles vive deliberadamente FUERA de este
+   archivo, en dos sitios distintos:
+     1) --bm-cols / --bm-rows / --bm-cell-min — los fija en tiempo de
+        ejecución juego/shell/niveles.js (BuscaminasNiveles.aplicar). Un
+        solo valor cada uno, sin variación por breakpoint: fijarlos vía
+        JS (estilo inline sobre <html>) es seguro.
+     2) --bm-board-max-width — SÍ cambia de valor según el breakpoint
+        (móvil/tablet vs escritorio). Un estilo inline fijado desde JS
+        tendría más especificidad que cualquier regla de esta hoja,
+        incluida una dentro de un @media, y rompería esa cascada
+        responsive. Por eso cada página de nivel declara esas dos líneas
+        (base + @media 1024px) en un <style> propio y muy pequeño en su
+        <head> — ver juego/shell/principiante.html.
+
+   Breakpoints: los estándares del proyecto, documentados en
+   css/styles.css (bloque ":root" al principio del archivo):
+     Móvil:      hasta 639px            (estilos base, mobile-first)
+     Tablet:     640px – 1023px         @media (min-width: 640px)
+     Escritorio: 1024px en adelante     @media (min-width: 1024px)
+
+   Política única de scroll para tableros grandes: en tablet y escritorio
+   NUNCA hay scroll — el tablero se ajusta siempre al ancho Y al alto
+   disponibles a la vez (ver layout.js), con prioridad sobre el tamaño
+   mínimo de celda de referencia (--bm-cell-min, ~28-32px, documentado
+   también en css/styles.css). Ese mínimo con scroll de reserva SOLO se
+   aplica en móvil. Detalle completo en css/styles.css.
+
+   Tamaño real del tablero y de cada casilla: en móvil, CSS puro
+   (width:100% + aspect-ratio + suelo de --bm-cell-min con scroll de
+   reserva). En tablet/escritorio, lo fija JavaScript (layout.js): mide
+   el hueco real de ".bm-board-wrap" con ResizeObserver y fija
+   width/height de "#bm-board" y --bm-cell-size en píxeles exactos — ver
+   layout.js para el porqué (dos técnicas CSS-only se probaron y fallan
+   en cuanto ".bm-layout" pasa a columna).
+   ========================================================= */
+
+:root {
+  /* ---- Marca ---- */
+  --brand: #FF6F00;
+  --brand-dark: #D95F00;
+  --word-dark: #2C2C2A;
+
+  /* ---- Paleta de peligro (números 1-8) ---- */
+  --n1: #1E6FD9;
+  --n2: #00897B;
+  --n3: #F2B705;
+  --n4: #E8720C;
+  --n5: #C0392B;
+  --n6: #6B1414;
+  --n7: #4A0E0E;
+  --n8: #200404;
+
+  /* ---- Bandera ---- */
+  --flag-pole: #6B6A64;
+  --flag-pennant: #E53935;
+  --flag-circle-bg: #FFF4EB; /* círculo de contraste claro/blanco roto detrás de la bandera */
+
+  /* Alias legacy OBLIGATORIOS: motor/render.js (que no se toca en este
+     encargo) inyecta un <svg> que referencia estos 3 nombres de variable
+     EXACTOS y literales para pintar la bandera (fill/stroke). Se
+     mantienen tal cual, apuntando a los tokens cortos de arriba, para no
+     tener que tocar ese archivo. Si se elimina motor/render.js algún
+     día, este bloque puede eliminarse con él. */
+  --color-flag-circle-bg: var(--flag-circle-bg);
+  --color-flag-mast: var(--flag-pole);
+  --color-flag-pennant: var(--flag-pennant);
+
+  /* ---- Mina ---- */
+  --mine-body: #2C2C2A;
+  --mine-spark: #E53935;
+
+  /* ---- Superficies web ---- */
+  --page-bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --border: #E4E2DA;
+
+  /* ---- Bisel de casilla ABIERTA (gris neutro) ---- */
+  --tile-light: #F4F3EF;
+  --tile-dark: #B4B2A9;
+
+  /* ---- Casilla SIN ABRIR: color de marca, con variantes claras/oscuras
+     del mismo naranja para el bisel 3D (no reutiliza los tonos grises de
+     arriba, que son solo para la casilla abierta). ---- */
+  --cell-closed-bg: var(--brand);
+  --cell-closed-light: #FFA557;
+  --cell-closed-dark: #C75A00;
+
+  /* ---- Tipografía ---- */
+  --font: 'Inter', sans-serif;
+
+  /* ---- Layout propio del componente (no son tokens de marca) ---- */
+  --bm-radius: 8px;
+  --bm-board-padding: 5px;
+  --bm-cell-gap: 2px;
+  --bm-sidebar-width: 220px; /* mismo ancho para los 3 niveles, en los 2 laterales de la cuadrícula de escritorio */
+
+  /* --bm-cols / --bm-rows / --bm-cell-min / --bm-board-max-width:
+     deliberadamente NO se definen aquí — ver comentario de cabecera. */
+}
+
+@media (min-width: 640px) {
+  :root {
+    --bm-board-padding: 7px;
+    --bm-cell-gap: 3px;
+  }
+}
+
+/* =========================================================
+   Página "Jugar"
+   ========================================================= */
+
+.page-jugar {
+  /* "height" fijo (NO "min-height"): el tablero usa max-height:100% (vía
+     layout.js) para encogerse en vez de desbordar, y eso solo funciona
+     si esta cadena de flex en columna cuelga de un alto realmente
+     DEFINIDO. */
+  height: 100vh;
+  height: 100dvh; /* mejor soporte de barras de navegador móviles */
+  display: flex;
+  flex-direction: column;
+}
+
+.page-jugar main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bm-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 14px;
+}
+
+@media (min-width: 640px) {
+  .bm-page { padding: 16px 24px; }
+}
+
+@media (min-width: 1024px) {
+  .bm-page { padding: 24px 32px; }
+}
+
+/* ---------- Layout general ----------
+   Móvil/tablet: flex en columna — panel arriba, tablero, anuncio debajo
+   (mismo orden que el DOM: .bm-panel, .bm-main, .bm-ad-slot; el espaciado
+   entre los tres lo da el "gap" de .bm-layout).
+
+   Escritorio (≥1024px): cuadrícula de 3 columnas SIMÉTRICAS — tabla de
+   estado | tablero (centrado) | anuncio, las dos laterales del mismo
+   ancho (--bm-sidebar-width). Al ser una cuadrícula real (no un flex con
+   ancho fijo a la izquierda + centrado a medias del resto, como en la
+   versión anterior de Intermedio), el tablero queda centrado en su
+   propia columna sin ningún truco adicional — ver ".bm-board-wrap" más
+   abajo. */
+
+.bm-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font);
+}
+
+@media (min-width: 640px) {
+  .bm-layout { gap: 14px; }
+}
+
+@media (min-width: 1024px) {
+  .bm-layout {
+    display: grid;
+    grid-template-columns: var(--bm-sidebar-width) 1fr var(--bm-sidebar-width);
+    align-items: stretch;
+    gap: 24px;
+  }
+}
+
+.bm-panel {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 1024px) {
+  .bm-panel { gap: 10px; }
+}
+
+/* ---------- Logo (sustituye a la cabecera de sitio completa en esta
+   página, en los 3 niveles): el tablero necesita todo el alto
+   disponible, así que en vez de una barra superior con logo+navegación
+   (Inicio/Entrenador, innecesarios para jugar), el logo pasa a ser el
+   primer elemento de .bm-panel, justo encima de "Nivel", con el mismo
+   ancho que el resto de la columna. Sigue siendo un enlace a Inicio. */
+
+.bm-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.bm-logo-mark {
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.bm-logo-word {
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bm-logo-word-dark { color: var(--word-dark); }
+.bm-logo-word-accent { color: var(--brand); }
+
+@media (min-width: 1024px) {
+  .bm-logo-mark { width: 32px; height: 32px; }
+  .bm-logo-word { font-size: 16px; }
+}
+
+.bm-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-jugar .site-footer {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 10px 0;
+}
+
+/* ---------- Anuncio ----------
+   Móvil/tablet: franja horizontal debajo del tablero, como tercer hijo
+   de .bm-layout (el "gap" del layout ya pone el espacio, sin margen
+   propio). Escritorio: tercera columna de la cuadrícula, mismo ancho que
+   la tabla de estado, estirada a la misma altura por el
+   "align-items:stretch" de .bm-layout. */
+
+.bm-ad-slot {
+  display: flex;
+  flex-shrink: 0;
+  min-height: 56px;
+  font-family: var(--font);
+}
+
+@media (min-width: 1024px) {
+  .bm-ad-slot {
+    min-height: 250px;
+  }
+}
+
+/* Ocultación temporal del contenido del placeholder de anuncio: sigue en
+   el DOM y sigue reservando su hueco en el layout (no se borra el
+   contenedor ni se colapsa su espacio), solo se le quita la visibilidad
+   mientras no hay un proveedor real integrado. */
+.ad-slot--placeholder-hidden {
+  visibility: hidden;
+}
+
+/* =========================================================
+   Los 4 elementos de información: Nivel, Tiempo, Minas, Reiniciar.
+   Mismo estilo visual entre los cuatro (borde, radio, tipografía) en
+   cada tamaño de pantalla — Nivel es la única excepción deliberada en
+   móvil/tablet (texto pequeño sin caja, ver .bm-info--nivel más abajo).
+   ========================================================= */
+
+.bm-hud-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 1024px) {
+  .bm-hud-row { display: contents; }
+  .bm-info--nivel { order: 1; }
+  .bm-info--tiempo { order: 2; }
+  .bm-info--minas { order: 3; }
+  .bm-reset { order: 4; }
+}
+
+.bm-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--bm-radius);
+  padding: 8px 12px;
+  font-family: var(--font);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.bm-info--tiempo { justify-self: start; }
+.bm-info--minas { justify-self: end; }
+
+.bm-info-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--word-dark);
+  opacity: 0.55;
+}
+
+.bm-info-value {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--word-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 640px) {
+  .bm-info { padding: 10px 18px; }
+  .bm-info-label { font-size: 11px; }
+  .bm-info-value { font-size: 19px; }
+}
+
+/* ---- Nivel: en móvil/tablet es solo texto pequeño centrado, sin caja;
+   en escritorio se convierte en una caja más, igual que las otras tres. ---- */
+
+.bm-info--nivel {
+  flex-direction: row;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  min-height: 0;
+}
+.bm-info--nivel .bm-info-label { font-size: 11px; }
+.bm-info--nivel .bm-info-value { font-size: 12px; font-weight: 600; }
+
+@media (min-width: 640px) {
+  .bm-info--nivel .bm-info-label { font-size: 12px; }
+  .bm-info--nivel .bm-info-value { font-size: 14px; }
+}
+
+@media (min-width: 1024px) {
+  .bm-info--nivel {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    min-height: 44px;
+  }
+  .bm-info--nivel .bm-info-label { font-size: 11px; }
+  .bm-info--nivel .bm-info-value { font-size: 17px; }
+}
+
+/* ---- Reiniciar: mismo borde/radio/tipografía que .bm-info, con icono
+   de recarga; en móvil solo el icono (botón compacto ≥44px para el
+   dedo), a partir de tablet añade el texto "Reiniciar". ---- */
+
+.bm-reset {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--bm-radius);
+  color: var(--brand);
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.bm-reset:hover { background: var(--page-bg); border-color: var(--brand); }
+.bm-reset:active { transform: translateY(1px); }
+.bm-reset:focus-visible {
+  outline: 3px solid var(--n1);
+  outline-offset: 2px;
+}
+
+.bm-reset-icon { width: 20px; height: 20px; flex-shrink: 0; }
+.bm-reset-text { display: none; font-size: 13px; }
+
+@media (min-width: 640px) {
+  .bm-reset {
+    width: auto;
+    height: auto;
+    min-height: 44px;
+    padding: 10px 18px;
+  }
+  .bm-reset-text { display: inline; }
+}
+
+@media (min-width: 1024px) {
+  .bm-reset { width: 100%; }
+}
+
+/* ---------- Tablero ----------
+   Móvil: el ancho disponible manda (--bm-board-max-width como techo), y
+   el tablero se encoge con fluidez hasta el suelo de --bm-cell-min (ver
+   min-width/min-height más abajo); el alto es intrínseco, derivado del
+   ancho vía aspect-ratio. Si ni con el suelo cabe, .bm-board-wrap hace
+   scroll (ver "overflow" más abajo).
+
+   Tablet/escritorio: el tablero debe caber en ancho Y alto a la vez, sin
+   scroll nunca. El tamaño real lo fija JavaScript (layout.js): mide el
+   hueco real de .bm-board-wrap con ResizeObserver y fija width/height en
+   píxeles. El width/height por defecto de abajo (min-width:0/
+   min-height:0) es solo el valor de arranque antes de que layout.js
+   corra la primera vez.
+
+   Tamaño de CASILLA fijo (los dos casos): layout.js también calcula
+   --bm-cell-size (px) a partir del tamaño YA renderizado del tablero y
+   lo aplica a los tracks del grid Y a cada .bm-cell (ver más abajo). Es
+   imprescindible que sea un valor fijo en px y no "1fr": un track "1fr"
+   reserva como mínimo el min-content de su contenido, así que una celda
+   con un número ocupa más que una tapada y el tablero entero podía
+   crecer al revelar la primera casilla. Con --bm-cell-size fijo, el
+   contenido de la celda nunca puede alterar el tamaño del tablero. */
+
+.bm-board-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  /* "safe center": si el tablero no cabe en móvil y hay que hacer scroll,
+     evita que el navegador recorte el principio del contenido por
+     centrarlo (problema conocido de flexbox al centrar contenido más
+     grande que el contenedor); con soporte, el contenido se ancla al
+     inicio y sigue siendo alcanzable con scroll. Sin soporte, cae a
+     "center" normal. */
+  align-items: safe center;
+  justify-content: safe center;
+  overflow: auto;
+}
+
+@media (min-width: 640px) {
+  .bm-board-wrap {
+    overflow: hidden; /* tablet/escritorio: layout.js garantiza que el tablero cabe siempre, nunca hace falta scroll */
+  }
+}
+
+.bm-board {
+  width: 100%;
+  max-width: var(--bm-board-max-width);
+  /* Suelo de celda con scroll de reserva: SOLO para móvil (ver arriba).
+     Se anula en tablet/escritorio (layout.js decide el tamaño real). */
+  min-width: calc(var(--bm-cols) * var(--bm-cell-min) + (var(--bm-cols) - 1) * var(--bm-cell-gap) + 2 * var(--bm-board-padding));
+  min-height: calc(var(--bm-rows) * var(--bm-cell-min) + (var(--bm-rows) - 1) * var(--bm-cell-gap) + 2 * var(--bm-board-padding));
+  aspect-ratio: var(--bm-cols) / var(--bm-rows);
+  margin: 0 auto;
+  display: grid;
+  /* "var(--bm-cell-size, 1fr)", NO "1fr" a secas: ver explicación arriba
+     sobre por qué el track no puede ser un "1fr" plano. --bm-cell-size lo
+     fija layout.js en píxeles EXACTOS; el "1fr" en el var() es solo el
+     valor de arranque antes de que layout.js corra la primera vez. */
+  grid-template-columns: repeat(var(--bm-cols), var(--bm-cell-size, 1fr));
+  grid-template-rows: repeat(var(--bm-rows), var(--bm-cell-size, 1fr));
+  gap: var(--bm-cell-gap);
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--bm-radius);
+  padding: var(--bm-board-padding);
+  box-sizing: border-box;
+  container-type: inline-size; /* para que el tamaño de los números (cqi) siga al ancho real del tablero */
+}
+
+@media (min-width: 640px) {
+  .bm-board {
+    /* Anula el suelo de celda de móvil: layout.js decide el tamaño real. */
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+.bm-cell {
+  /* width/height explícitos (idénticos a los tracks del grid, misma
+     variable --bm-cell-size) en vez de dejar que la celda tome el tamaño
+     del track: así el tamaño de CADA casilla queda fijo en píxeles,
+     estable durante toda la partida, sin importar su contenido (tapada,
+     número, bandera). "aspect-ratio:1" se deja como red de seguridad
+     para el instante antes de que layout.js fije --bm-cell-size. */
+  width: var(--bm-cell-size, 100%);
+  height: var(--bm-cell-size, 100%);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 5cqi; /* proporción de referencia; el tamaño real de cada tablero lo ajusta --bm-cell-size */
+  border-radius: var(--bm-radius);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* evita el menú nativo de "guardar imagen" en pulsación larga (iOS) */
+  /* El tablero puede vivir dentro de un contenedor con scroll (móvil, si
+     no cabe ni con el suelo de celda — ver .bm-board-wrap). "none" evita
+     que el navegador interprete un long-press o un doble toque que
+     empiezan sobre una celda como el inicio de un pan/zoom nativo,
+     dejando esos gestos enteramente en manos del JS (bandera / chording).
+     El arrastre normal para desplazar el tablero sigue funcionando si el
+     gesto empieza fuera de una celda (en el padding/gap de .bm-board, que
+     conservan touch-action:auto). */
+  touch-action: none;
+}
+
+/* Casilla sin abrir: color de marca con bisel realzado (variante clara
+   arriba-izquierda, variante oscura abajo-derecha). */
+.bm-cell--closed {
+  background: var(--cell-closed-bg);
+  border-top: 2px solid var(--cell-closed-light);
+  border-left: 2px solid var(--cell-closed-light);
+  border-bottom: 2px solid var(--cell-closed-dark);
+  border-right: 2px solid var(--cell-closed-dark);
+}
+
+/* Casilla abierta: bisel invertido, sensación de hundimiento. */
+.bm-cell--open {
+  background: var(--surface);
+  border-top: 2px solid var(--tile-dark);
+  border-left: 2px solid var(--tile-dark);
+  border-bottom: 2px solid var(--tile-light);
+  border-right: 2px solid var(--tile-light);
+  cursor: default;
+}
+
+.bm-cell--n1 { color: var(--n1); }
+.bm-cell--n2 { color: var(--n2); }
+.bm-cell--n3 { color: var(--n3); font-weight: 800; } /* refuerzo de peso: bajo contraste del amarillo sobre blanco */
+.bm-cell--n4 { color: var(--n4); }
+.bm-cell--n5 { color: var(--n5); }
+.bm-cell--n6 { color: var(--n6); }
+.bm-cell--n7 { color: var(--n7); }
+.bm-cell--n8 { color: var(--n8); }
+
+/* ---------- Bandera ----------
+   La casilla sigue con el mismo fondo naranja de "sin abrir" (no se toca
+   .bm-cell--closed). Encima se pinta, vía SVG inyectado desde render.js,
+   un círculo claro/blanco roto de contraste y sobre él la bandera con
+   las proporciones del logotipo de la marca. Los 3 nombres de variable
+   que usa ese SVG están aliasados arriba, en :root. */
+
+.bm-flag-icon {
+  height: 96%;
+  width: auto;
+  display: block;
+  pointer-events: none;
+}
+
+/* ---------- Mina ---------- */
+
+.bm-cell--mine::before {
+  content: '';
+  width: 55%;
+  height: 55%;
+  border-radius: 50%;
+  background: var(--mine-body);
+  box-shadow: 0 0 0 2px var(--mine-spark) inset;
+}
+
+/* Mina que hizo perder la partida: resaltada de forma distinta al resto */
+.bm-cell--mine-exploded {
+  background: var(--flag-pennant);
+}
+
+/* ---------- Mensaje de estado (victoria / derrota) ---------- */
+
+.bm-mensaje {
+  text-align: center;
+  min-height: 18px;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.bm-mensaje--ganada { color: var(--n2); }
+.bm-mensaje--perdida { color: var(--flag-pennant); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-reset { transition: none; }
+}

@@ -10,7 +10,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../css/styles.css">
-<link rel="stylesheet" href="intermedio/styles.css">
+<link rel="stylesheet" href="shell/styles.css">
+<style>
+  /* Único ajuste de CSS propio de este nivel: ver el porqué en el
+     comentario de cabecera de styles.css (--bm-board-max-width cambia de
+     valor por breakpoint, así que no puede fijarse desde JS). El resto
+     de la configuración del nivel (cols/rows/minas/cell-min) vive en
+     niveles.js. */
+  :root { --bm-board-max-width: 560px; }
+  @media (min-width: 1024px) {
+    :root { --bm-board-max-width: 720px; }
+  }
+</style>
 </head>
 <body class="page-jugar">
 
@@ -32,7 +43,7 @@
 
         <div class="bm-info bm-info--nivel">
           <span class="bm-info-label">Nivel</span>
-          <span class="bm-info-value">Intermedio</span>
+          <span class="bm-info-value" data-bm-nivel-nombre></span>
         </div>
 
         <div class="bm-hud-row">
@@ -51,19 +62,19 @@
 
           <div class="bm-info bm-info--minas">
             <span class="bm-info-label">Minas</span>
-            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">40</span>
+            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">0</span>
           </div>
         </div>
       </div>
 
       <div class="bm-main">
         <div class="bm-board-wrap">
-          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 16 por 16" data-filas="16" data-columnas="16" data-minas="40"></div>
+          <div class="bm-board" id="bm-board" role="grid"></div>
         </div>
-
-        <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
-        <div class="ad-slot bm-ad-slot ad-slot--placeholder-hidden" aria-hidden="true">Espacio reservado para anuncio</div>
       </div>
+
+      <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
+      <div class="ad-slot bm-ad-slot ad-slot--placeholder-hidden" aria-hidden="true">Espacio reservado para anuncio</div>
 
     </div>
 
@@ -84,8 +95,10 @@
   </div>
 </footer>
 
+<script src="shell/niveles.js"></script>
+<script>BuscaminasNiveles.aplicar('intermedio');</script>
 <script src="motor/board.js"></script>
 <script src="motor/render.js"></script>
-<script src="intermedio/layout.js"></script>
+<script src="shell/layout.js"></script>
 </body>
 </html>

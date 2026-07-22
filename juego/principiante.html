@@ -10,40 +10,40 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../css/styles.css">
-<link rel="stylesheet" href="principiante/styles.css">
+<link rel="stylesheet" href="shell/styles.css">
+<style>
+  /* Único ajuste de CSS propio de este nivel: ver el porqué en el
+     comentario de cabecera de styles.css (--bm-board-max-width cambia de
+     valor por breakpoint, así que no puede fijarse desde JS). El resto
+     de la configuración del nivel (cols/rows/minas/cell-min) vive en
+     niveles.js. */
+  :root { --bm-board-max-width: 480px; }
+  @media (min-width: 1024px) {
+    :root { --bm-board-max-width: 560px; }
+  }
+</style>
 </head>
 <body class="page-jugar">
-
-<header class="site-header">
-  <div class="container">
-    <a href="../index.html" class="brand">
-      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-  <rect x="4" y="4" width="56" height="56" rx="8" fill="#E3E1DA"/>
-  <path d="M7 57 L7 7 L57 7" stroke="#F4F3EF" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M9 59 L59 59 L59 9" stroke="#B4B2A9" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <line x1="26" y1="48" x2="26" y2="16" stroke="#6B6A64" stroke-width="4" stroke-linecap="round"/>
-  <polygon points="26,16 47,23.5 26,31" fill="#E53935"/>
-</svg></span>
-      <span class="brand-word-dark">Buscaminas</span> <span class="brand-word-accent">Experto</span>
-    </a>
-    <nav class="main-nav" aria-label="Navegación principal">
-      <a href="../index.html">Inicio</a>
-      <a href="../entrenador.html">Entrenador</a>
-    </nav>
-    <button class="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-    </button>
-  </div>
-</header>
 
 <main>
   <div class="bm-page">
     <div class="bm-layout">
 
       <div class="bm-panel">
+        <a href="../index.html" class="bm-logo" aria-label="Buscaminas Experto — Ir a inicio">
+          <span class="bm-logo-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <rect x="4" y="4" width="56" height="56" rx="8" fill="#E3E1DA"/>
+  <path d="M7 57 L7 7 L57 7" stroke="#F4F3EF" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M9 59 L59 59 L59 9" stroke="#B4B2A9" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <line x1="26" y1="48" x2="26" y2="16" stroke="#6B6A64" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="26,16 47,23.5 26,31" fill="#E53935"/>
+</svg></span>
+          <span class="bm-logo-word"><span class="bm-logo-word-dark">Buscaminas</span> <span class="bm-logo-word-accent">Experto</span></span>
+        </a>
+
         <div class="bm-info bm-info--nivel">
           <span class="bm-info-label">Nivel</span>
-          <span class="bm-info-value">Principiante</span>
+          <span class="bm-info-value" data-bm-nivel-nombre></span>
         </div>
 
         <div class="bm-hud-row">
@@ -62,19 +62,19 @@
 
           <div class="bm-info bm-info--minas">
             <span class="bm-info-label">Minas</span>
-            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">10</span>
+            <span class="bm-info-value" id="bm-contador-minas" aria-live="polite">0</span>
           </div>
         </div>
       </div>
 
       <div class="bm-main">
         <div class="bm-board-wrap">
-          <div class="bm-board" id="bm-board" role="grid" aria-label="Tablero de Buscaminas, 9 por 9" data-filas="9" data-columnas="9" data-minas="10"></div>
+          <div class="bm-board" id="bm-board" role="grid"></div>
         </div>
-
-        <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
-        <div class="ad-slot bm-ad-slot ad-slot--placeholder-hidden" aria-hidden="true">Espacio reservado para anuncio</div>
       </div>
+
+      <!-- TODO: integrar anuncio real aquí (ver documento de monetización) -->
+      <div class="ad-slot bm-ad-slot ad-slot--placeholder-hidden" aria-hidden="true">Espacio reservado para anuncio</div>
 
     </div>
 
@@ -95,8 +95,10 @@
   </div>
 </footer>
 
-<script src="../js/nav.js"></script>
+<script src="shell/niveles.js"></script>
+<script>BuscaminasNiveles.aplicar('principiante');</script>
 <script src="motor/board.js"></script>
 <script src="motor/render.js"></script>
+<script src="shell/layout.js"></script>
 </body>
 </html>
