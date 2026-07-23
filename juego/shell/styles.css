@@ -27,15 +27,21 @@
      Tablet:     640px – 1023px         @media (min-width: 640px)
      Escritorio: 1024px en adelante     @media (min-width: 1024px)
 
-   Política única de scroll para tableros grandes: en tablet y escritorio
-   NUNCA hay scroll — el tablero se ajusta siempre al ancho Y al alto
-   disponibles a la vez (ver layout.js), con prioridad sobre el tamaño
-   mínimo de celda de referencia (--bm-cell-min, ~28-32px, documentado
-   también en css/styles.css). Ese mínimo con scroll de reserva SOLO se
-   aplica en móvil. Detalle completo en css/styles.css.
+   Política única de scroll para tableros grandes: en NINGÚN breakpoint
+   hay scroll interno en el tablero. En tablet y escritorio el tablero
+   siempre cabe en ancho Y alto a la vez (ver layout.js), con prioridad
+   sobre el tamaño mínimo de celda de referencia (--bm-cell-min, ~28-32px,
+   documentado también en css/styles.css). En móvil ese mínimo SÍ se
+   respeta como suelo real: si el viewport no llega a ese ancho/alto, el
+   tablero (y la barra de Tiempo/Reiniciar/Minas, que comparte el mismo
+   suelo — ver --bm-board-floor-width) se pintan a su tamaño real y se
+   salen de pantalla, sin recortarse ni virtualizarse; es el pinch-zoom
+   nativo del navegador quien lo resuelve (ver touch-action en .bm-cell y
+   overflow en .bm-board-wrap), no un contenedor con scroll propio.
+   Detalle completo en css/styles.css.
 
    Tamaño real del tablero y de cada casilla: en móvil, CSS puro
-   (width:100% + aspect-ratio + suelo de --bm-cell-min con scroll de
+   (width:100% + aspect-ratio + suelo de --bm-cell-min, sin scroll de
    reserva). En tablet/escritorio, lo fija JavaScript (layout.js): mide
    el hueco real de ".bm-board-wrap" con ResizeObserver y fija
    width/height de "#bm-board" y --bm-cell-size en píxeles exactos — ver
@@ -102,6 +108,13 @@
   --bm-board-padding: 5px;
   --bm-cell-gap: 2px;
   --bm-sidebar-width: 220px; /* mismo ancho para los 3 niveles, en los 2 laterales de la cuadrícula de escritorio */
+
+  /* Ancho mínimo real del tablero en móvil (mismo suelo de --bm-cell-min
+     que usa .bm-board — ver min-width ahí abajo). Se define una sola vez
+     aquí para que .bm-hud-row (la barra de Tiempo/Reiniciar/Minas) pueda
+     ensancharse exactamente lo mismo que el tablero cuando este se sale
+     de pantalla en vez de quedar más estrecha que él. */
+  --bm-board-floor-width: calc(var(--bm-cols) * var(--bm-cell-min) + (var(--bm-cols) - 1) * var(--bm-cell-gap) + 2 * var(--bm-board-padding));
 
   /* --bm-cols / --bm-rows / --bm-cell-min / --bm-board-max-width:
      deliberadamente NO se definen aquí — ver comentario de cabecera. */
@@ -288,8 +301,57 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  /* Barra única (móvil/tablet, ver "cabecera unificada" más abajo): mismo
+     ancho y centrado que .bm-board, para que quede alineada a sus mismos
+     bordes izquierdo/derecho en vez de ocupar todo el ancho de .bm-panel.
+     min-width comparte la misma variable que .bm-board (--bm-board-floor-
+     width): si el tablero se sale de pantalla en móvil porque no cabe ni
+     con el suelo de celda, la barra crece exactamente lo mismo en vez de
+     quedarse más estrecha que él. Se anula en tablet/escritorio, igual
+     que en .bm-board (layout.js garantiza que ahí el tablero siempre
+     cabe, así que nunca hace falta este suelo). */
+  width: 100%;
+  max-width: var(--bm-board-max-width);
+  min-width: var(--bm-board-floor-width);
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--bm-radius);
+  padding: 4px;
+  box-sizing: border-box;
 }
+
+@media (min-width: 640px) {
+  .bm-hud-row { min-width: 0; } /* anula el suelo: en tablet/escritorio el tablero nunca se sale de pantalla */
+}
+
+/* Cabecera unificada (móvil/tablet): Tiempo, Reiniciar y Minas dejan de
+   ser 3 tarjetas sueltas con hueco de fondo entre ellas y pasan a ser un
+   único bloque visual — el fondo/borde/radio ahora vive en .bm-hud-row
+   (arriba), así que aquí se anulan en sus 3 hijos. Reiniciar conserva un
+   fondo propio, ligeramente distinto (--page-bg vs. --surface), para
+   seguir leyéndose como botón dentro de la barra. En escritorio
+   (@media 1024px más abajo) se restaura la tarjeta individual de cada
+   uno, porque ahí .bm-hud-row pasa a "display:contents" y cada elemento
+   vive suelto en la columna lateral. */
+.bm-hud-row .bm-info {
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.bm-hud-row .bm-reset {
+  background: var(--page-bg);
+  border: none;
+}
+
+/* Separadores finos entre los 3 segmentos de la barra (en vez del hueco
+   de fondo de antes). Selector con la misma especificidad que ".bm-hud-row
+   .bm-info" de arriba, pero declarado después: gana para border-right/
+   border-left concretamente, sin reintroducir el resto del borde. */
+.bm-hud-row .bm-info--tiempo { border-right: 1px solid var(--border); }
+.bm-hud-row .bm-info--minas { border-left: 1px solid var(--border); }
 
 @media (min-width: 1024px) {
   .bm-hud-row { display: contents; }
@@ -297,6 +359,20 @@
   .bm-info--tiempo { order: 2; }
   .bm-info--minas { order: 3; }
   .bm-reset { order: 4; }
+
+  /* Restaura la tarjeta individual de cada elemento (fondo/borde/radio):
+     en escritorio .bm-hud-row ya no genera caja (display:contents) y cada
+     uno vive suelto en la columna lateral, como antes de este cambio. */
+  .bm-hud-row .bm-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--bm-radius);
+  }
+
+  .bm-hud-row .bm-reset {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
 }
 
 .bm-info {
@@ -374,8 +450,9 @@
 }
 
 /* ---- Reiniciar: mismo borde/radio/tipografía que .bm-info, con icono
-   de recarga; en móvil solo el icono (botón compacto ≥44px para el
-   dedo), a partir de tablet añade el texto "Reiniciar". ---- */
+   de recarga; en móvil solo el icono (botón compacto, más grande que el
+   mínimo táctil de 44px — ver .bm-hud-row .bm-reset más abajo), a partir
+   de tablet añade el texto "Reiniciar". ---- */
 
 .bm-reset {
   justify-self: center;
@@ -405,6 +482,18 @@
 .bm-reset-icon { width: 20px; height: 20px; flex-shrink: 0; }
 .bm-reset-text { display: none; font-size: 13px; }
 
+/* Dentro de la barra unificada (móvil/tablet, ver .bm-hud-row): botón
+   redondo y más grande que el mínimo táctil de 44px (área real 52x52 en
+   móvil), para que destaque como acción principal en el centro de la
+   barra. En escritorio (@media 1024px, ver arriba) vuelve a su tarjeta
+   individual sin este engrandecimiento. */
+.bm-hud-row .bm-reset {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+.bm-hud-row .bm-reset-icon { width: 24px; height: 24px; }
+
 @media (min-width: 640px) {
   .bm-reset {
     width: auto;
@@ -413,18 +502,40 @@
     padding: 10px 18px;
   }
   .bm-reset-text { display: inline; }
+
+  /* El engrandecimiento (min-height/padding más generosos) queda dentro
+     de ".bm-hud-row .bm-reset", no en ".bm-reset" a secas, para que el
+     @media 1024px de abajo pueda revertirlo sin más que igualar esta
+     misma especificidad — igual que ya se hace con width/border-radius. */
+  .bm-hud-row .bm-reset {
+    width: auto;
+    height: auto;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: var(--bm-radius);
+  }
 }
 
 @media (min-width: 1024px) {
   .bm-reset { width: 100%; }
+  /* Especificidad igual a ".bm-hud-row .bm-reset" de la tablet (arriba):
+     sin esto, esas reglas seguirían ganando aquí también, porque ambos
+     @media aplican a la vez a partir de 1024px. Revierte el ancho, el
+     engrandecimiento y el tamaño de icono al valor original de la
+     tarjeta individual de escritorio (44px min-height, 10px 18px, icono
+     20px), que no forma parte de este encargo. */
+  .bm-hud-row .bm-reset { width: 100%; height: auto; min-height: 44px; padding: 10px 18px; }
+  .bm-hud-row .bm-reset-icon { width: 20px; height: 20px; }
 }
 
 /* ---------- Tablero ----------
    Móvil: el ancho disponible manda (--bm-board-max-width como techo), y
    el tablero se encoge con fluidez hasta el suelo de --bm-cell-min (ver
    min-width/min-height más abajo); el alto es intrínseco, derivado del
-   ancho vía aspect-ratio. Si ni con el suelo cabe, .bm-board-wrap hace
-   scroll (ver "overflow" más abajo).
+   ancho vía aspect-ratio. Si ni con el suelo cabe, el tablero se pinta a
+   su tamaño real y se sale del viewport: no hay scroll interno ni
+   recorte, es el pinch-zoom nativo del navegador quien lo resuelve (ver
+   "overflow" en .bm-board-wrap y "touch-action" en .bm-cell más abajo).
 
    Tablet/escritorio: el tablero debe caber en ancho Y alto a la vez, sin
    scroll nunca. El tamaño real lo fija JavaScript (layout.js): mide el
@@ -447,15 +558,16 @@
   min-height: 0;
   min-width: 0;
   display: flex;
-  /* "safe center": si el tablero no cabe en móvil y hay que hacer scroll,
-     evita que el navegador recorte el principio del contenido por
-     centrarlo (problema conocido de flexbox al centrar contenido más
-     grande que el contenedor); con soporte, el contenido se ancla al
-     inicio y sigue siendo alcanzable con scroll. Sin soporte, cae a
-     "center" normal. */
+  /* Sin scroll interno en móvil (a propósito): el tablero se pinta a su
+     tamaño real (ver min-width/min-height en .bm-board) y, si no cabe en
+     pantalla al 100% de zoom, es el pinch-zoom nativo del navegador quien
+     lo resuelve (ver touch-action en .bm-cell), no un contenedor con
+     scroll propio ni recorte. "safe center" evita perder el borde inicial
+     del tablero si el navegador necesitase desplazar la página para
+     alcanzarlo. */
   align-items: safe center;
   justify-content: safe center;
-  overflow: auto;
+  overflow: visible;
 }
 
 @media (min-width: 640px) {
@@ -467,9 +579,15 @@
 .bm-board {
   width: 100%;
   max-width: var(--bm-board-max-width);
-  /* Suelo de celda con scroll de reserva: SOLO para móvil (ver arriba).
-     Se anula en tablet/escritorio (layout.js decide el tamaño real). */
-  min-width: calc(var(--bm-cols) * var(--bm-cell-min) + (var(--bm-cols) - 1) * var(--bm-cell-gap) + 2 * var(--bm-board-padding));
+  /* Suelo de celda de referencia: SOLO para móvil (ver arriba); si el
+     viewport no llega a este ancho/alto, el tablero se sale de pantalla
+     en vez de encogerse más (pinch-zoom nativo, no scroll). Se anula en
+     tablet/escritorio (layout.js decide el tamaño real, siempre cabe).
+     El ancho usa --bm-board-floor-width (definida en :root) en vez de
+     repetir el calc() aquí, porque .bm-hud-row necesita exactamente el
+     mismo valor para no quedarse más estrecha que el tablero cuando este
+     se sale de pantalla — ver comentario junto a esa variable. */
+  min-width: var(--bm-board-floor-width);
   min-height: calc(var(--bm-rows) * var(--bm-cell-min) + (var(--bm-rows) - 1) * var(--bm-cell-gap) + 2 * var(--bm-board-padding));
   aspect-ratio: var(--bm-cols) / var(--bm-rows);
   margin: 0 auto;
@@ -519,15 +637,23 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none; /* evita el menú nativo de "guardar imagen" en pulsación larga (iOS) */
-  /* El tablero puede vivir dentro de un contenedor con scroll (móvil, si
-     no cabe ni con el suelo de celda — ver .bm-board-wrap). "none" evita
-     que el navegador interprete un long-press o un doble toque que
-     empiezan sobre una celda como el inicio de un pan/zoom nativo,
-     dejando esos gestos enteramente en manos del JS (bandera / chording).
-     El arrastre normal para desplazar el tablero sigue funcionando si el
-     gesto empieza fuera de una celda (en el padding/gap de .bm-board, que
-     conservan touch-action:auto). */
-  touch-action: none;
+  /* En móvil el tablero puede no caber en pantalla (ver min-width/
+     min-height en .bm-board): en vez de scroll interno, se resuelve con
+     pinch-zoom nativo del navegador (ver overflow en .bm-board-wrap).
+     "pinch-zoom" (NO "none" y NO "manipulation") es la pieza clave, y es
+     la propia especificación de touch-action la que distingue el gesto
+     por número de dedos, sin JS: desactiva el PANEO de un solo dedo que
+     empiece sobre una celda (para que ese gesto siga siendo, como antes,
+     un long-press de bandera / doble-toque de chording gestionado por
+     render.js, sin que el navegador lo interprete como scroll), pero deja
+     pasar el pellizco de DOS dedos, que el navegador sí procesa como zoom
+     nativo — al segundo dedo, render.js recibe un pointercancel del
+     puntero activo (ya contemplado en onPointerCancel) y cede el gesto
+     sin ejecutar ninguna acción de juego. El arrastre de un dedo para
+     desplazar el tablero sigue funcionando si el gesto empieza fuera de
+     una celda (en el padding/gap de .bm-board, que conservan
+     touch-action:auto). */
+  touch-action: pinch-zoom;
 }
 
 /* Casilla sin abrir: color de marca con bisel realzado (variante clara
