@@ -27,26 +27,41 @@
      Tablet:     640px – 1023px         @media (min-width: 640px)
      Escritorio: 1024px en adelante     @media (min-width: 1024px)
 
-   Política única de scroll para tableros grandes: en NINGÚN breakpoint
-   hay scroll interno en el tablero. En tablet y escritorio el tablero
+   Política de scroll para tableros grandes: en NINGÚN nivel ni breakpoint
+   hay scroll interno en el tablero (nunca un contenedor con su propio
+   overflow-y). En tablet y escritorio, para los 3 niveles, el tablero
    siempre cabe en ancho Y alto a la vez (ver layout.js), con prioridad
    sobre el tamaño mínimo de celda de referencia (--bm-cell-min, ~28-32px,
-   documentado también en css/styles.css). En móvil ese mínimo SÍ se
-   respeta como suelo real: si el viewport no llega a ese ancho/alto, el
-   tablero (y la barra de Tiempo/Reiniciar/Minas, que comparte el mismo
-   suelo — ver --bm-board-floor-width) se pintan a su tamaño real y se
-   salen de pantalla, sin recortarse ni virtualizarse; es el pinch-zoom
-   nativo del navegador quien lo resuelve (ver touch-action en .bm-cell y
-   overflow en .bm-board-wrap), no un contenedor con scroll propio.
-   Detalle completo en css/styles.css.
+   documentado también en css/styles.css).
+
+   En móvil el modelo YA NO es único entre niveles — hay dos:
+     - Principiante y Experto: ese mínimo de celda SÍ se respeta como
+       suelo real (--bm-board-floor-width). Si el viewport no llega a ese
+       ancho, el tablero (y la barra de Tiempo/Reiniciar/Minas, que
+       comparte el mismo suelo) se pintan a su tamaño real y se salen de
+       pantalla; es el pinch-zoom nativo del navegador (touch-action:
+       pinch-zoom en .bm-cell) quien lo resuelve, sin recorte.
+     - Intermedio (ver sección "Intermedio: encaja al ancho, sin scroll
+       propio" más abajo): sin suelo. El tablero es siempre el 100% del
+       ancho disponible — la celda se encoge lo que haga falta en vez de
+       desbordar — y su alto se deriva de ese ancho vía aspect-ratio. Si
+       aun así no cupiera verticalmente, ".nivel-intermedio.page-jugar"
+       deja crecer la página y se resuelve con el scroll normal del
+       navegador. Sin desbordamiento no hace falta gestionar el gesto a
+       mano: las celdas usan "manipulation" (panning y pinch-zoom nativos,
+       sin el retardo de ~300ms del toque ni el doble-toque-para-zoom, y
+       con buen soporte en Safari/iOS).
+   Detalle completo de la política de móvil en css/styles.css (el caso
+   general de Principiante/Experto); el caso de Intermedio es exclusivo
+   de este archivo.
 
    Tamaño real del tablero y de cada casilla: en móvil, CSS puro
-   (width:100% + aspect-ratio + suelo de --bm-cell-min, sin scroll de
-   reserva). En tablet/escritorio, lo fija JavaScript (layout.js): mide
-   el hueco real de ".bm-board-wrap" con ResizeObserver y fija
-   width/height de "#bm-board" y --bm-cell-size en píxeles exactos — ver
-   layout.js para el porqué (dos técnicas CSS-only se probaron y fallan
-   en cuanto ".bm-layout" pasa a columna).
+   (width:100% + aspect-ratio, con o sin suelo de --bm-cell-min según el
+   nivel — ver arriba). En tablet/escritorio, para los 3 niveles, lo fija
+   JavaScript (layout.js): mide el hueco real de ".bm-board-wrap" con
+   ResizeObserver y fija width/height de "#bm-board" y --bm-cell-size en
+   píxeles exactos — ver layout.js para el porqué (dos técnicas CSS-only
+   se probaron y fallan en cuanto ".bm-layout" pasa a columna).
    ========================================================= */
 
 :root {
@@ -140,6 +155,36 @@
   height: 100dvh; /* mejor soporte de barras de navegador móviles */
   display: flex;
   flex-direction: column;
+}
+
+/* Intermedio, SOLO en móvil (<640px — la sección "Intermedio: encaja al
+   ancho, sin scroll propio" más abajo explica el porqué de todo el
+   bloque): "min-height" en vez de "height" fijo. Con "height:100dvh" fijo,
+   si el contenido (el tablero) resultaba más alto que la pantalla, el
+   resto de la cadena flex (min-height:0 en cascada) lo encogía a la
+   fuerza y el sobrante se pintaba fuera de su caja sin empujar al footer
+   — el tablero quedaba solapado con él. Con "min-height:100dvh": si el
+   contenido cabe, el resultado es idéntico a antes (el flex-grow de
+   ".page-jugar main" sigue rellenando hasta 100dvh, igual que con
+   "height" fijo); si no cabe, el contenedor simplemente CRECE para
+   abarcarlo (ya no hay nada forzando el encogimiento), así que el footer
+   se coloca justo debajo del tablero, en vez de encima, y el sobrante lo
+   resuelve el scroll normal de la página. No se toca en tablet/escritorio
+   (@media 640px, más abajo): ahí layout.js sigue garantizando que el
+   tablero siempre cabe, así que el modelo de alto fijo original no
+   necesita cambiar. */
+.nivel-intermedio.page-jugar {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (min-width: 640px) {
+  .nivel-intermedio.page-jugar {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+  }
 }
 
 .page-jugar main {
@@ -324,6 +369,17 @@
 
 @media (min-width: 640px) {
   .bm-hud-row { min-width: 0; } /* anula el suelo: en tablet/escritorio el tablero nunca se sale de pantalla */
+}
+
+/* Intermedio no usa el suelo --bm-board-floor-width (ver sección
+   "Intermedio: encaja al ancho, sin scroll propio" más abajo): su
+   tablero es siempre exactamente el 100% del ancho disponible, así que
+   esta barra debe serlo también, en vez de ensancharse hasta el suelo de
+   celda como hacen Principiante/Experto. Sin @media: aplica en todos los
+   tamaños, aunque en la práctica solo importa en móvil (a partir de
+   640px el valor ya era 0 por la regla de arriba). */
+.nivel-intermedio .bm-hud-row {
+  min-width: 0;
 }
 
 /* Cabecera unificada (móvil/tablet): Tiempo, Reiniciar y Minas dejan de
@@ -586,7 +642,10 @@
      El ancho usa --bm-board-floor-width (definida en :root) en vez de
      repetir el calc() aquí, porque .bm-hud-row necesita exactamente el
      mismo valor para no quedarse más estrecha que el tablero cuando este
-     se sale de pantalla — ver comentario junto a esa variable. */
+     se sale de pantalla — ver comentario junto a esa variable.
+     Intermedio NO usa este suelo (lo anula — ver sección "Intermedio:
+     encaja al ancho, sin scroll propio" más abajo): ahí el ancho es
+     siempre el 100% disponible, sin excepción. */
   min-width: var(--bm-board-floor-width);
   min-height: calc(var(--bm-rows) * var(--bm-cell-min) + (var(--bm-rows) - 1) * var(--bm-cell-gap) + 2 * var(--bm-board-padding));
   aspect-ratio: var(--bm-cols) / var(--bm-rows);
@@ -652,8 +711,61 @@
      sin ejecutar ninguna acción de juego. El arrastre de un dedo para
      desplazar el tablero sigue funcionando si el gesto empieza fuera de
      una celda (en el padding/gap de .bm-board, que conservan
-     touch-action:auto). */
+     touch-action:auto). Intermedio NO usa este valor (lo anula a
+     "manipulation" — ver sección "Intermedio: encaja al ancho, sin
+     scroll propio" más abajo): al no tener nunca desbordamiento, no
+     necesita distinguir paneo de un dedo del pellizco de dos. */
   touch-action: pinch-zoom;
+}
+
+/* =========================================================
+   Intermedio: encaja al ancho, sin scroll propio (SOLO móvil, <640px)
+   =========================================================
+   Rehecho tras comprobar en pruebas reales que el enfoque anterior
+   (suelo de celda + overflow:visible + touch-action:pinch-zoom,
+   compartido con Principiante) tenía dos problemas: 1) el tablero podía
+   solapar el footer porque ".page-jugar" tenía un alto FIJO (ver el
+   override de ".nivel-intermedio.page-jugar" más arriba, que es la
+   pieza que de verdad arregla esto) y 2) "pinch-zoom" como valor de
+   touch-action no tiene buen soporte garantizado en Safari/iOS (solo
+   "auto" y "manipulation" son fiables ahí).
+
+   Este bloque solo se aplica si <body> lleva la clase "nivel-intermedio"
+   (añadida a mano en juego/intermedio.html, no vía JS/niveles.js, para
+   no arriesgar que afecte a Principiante o a Experto). Principiante
+   sigue con el suelo de celda + pinch-zoom de arriba, sin cambios.
+
+   Idea: el ancho del tablero deja de tener suelo mínimo — es SIEMPRE el
+   100% del ancho disponible (hasta el techo --bm-board-max-width propio
+   de intermedio.html), así que nunca hay overflow horizontal, sin
+   importar lo estrecha que sea la pantalla; el tamaño de celda que
+   resulta de dividir ese ancho entre 16 columnas puede ser pequeño en
+   pantallas muy estrechas, pero el tablero jamás se sale por los lados.
+   Como el tablero es cuadrado (16x16), "aspect-ratio" deriva el alto del
+   mismo ancho ya sin suelo, así que tampoco hay una altura mínima
+   forzada: el tablero mide lo que su ancho más el aspect-ratio dicten, y
+   si aun así no cupiera verticalmente en pantalla (p. ej. móvil en
+   horizontal), la página simplemente crece (ver ".nivel-intermedio.page-
+   jugar" arriba) y se resuelve con el scroll normal del navegador — no
+   con un contenedor con su propio overflow-y.
+
+   Sin suelo → sin overflow → sin ambigüedad entre "abrir casilla" y
+   "desplazar el tablero" → no hace falta gestionar el gesto a mano con
+   JS. "manipulation" (no "auto") es el valor que se usa más abajo: deja
+   pasar el panning normal y el pinch-zoom nativo igual que "auto" (y con
+   buen soporte en Safari/iOS, a diferencia de "pinch-zoom"), pero además
+   suprime el doble-toque-para-zoom y el retardo de ~300ms del toque que
+   los navegadores móviles aplican por defecto para poder distinguirlo de
+   un doble toque — retardo que aquí solo estorbaría (dos celdas tocadas
+   rápido y seguidas, como al abrir varias casillas a la vez). */
+
+.nivel-intermedio .bm-board {
+  min-width: 0;
+  min-height: 0;
+}
+
+.nivel-intermedio .bm-cell {
+  touch-action: manipulation;
 }
 
 /* Casilla sin abrir: color de marca con bisel realzado (variante clara
