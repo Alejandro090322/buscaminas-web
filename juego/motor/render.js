@@ -6,6 +6,19 @@
  * dimensiones del tablero se leen de data-filas/data-columnas/data-minas en
  * #bm-board, así que cada nivel solo aporta su HTML/CSS, no una copia de
  * este archivo.
+ *
+ * Única excepción, aislada tras la bandera ES_INTERMEDIO (detecta la clase
+ * "nivel-intermedio" en <body>, la misma que usa juego/shell/styles.css
+ * para aislar sus propias reglas de Intermedio): en Intermedio el tablero
+ * en móvil puede ser más ancho/alto que la pantalla (celda de tamaño fijo,
+ * ver esa hoja de estilos), así que un arrastre que empiece sobre una
+ * celda debe poder desplazar la página sin abrir ninguna casilla por el
+ * camino. Se aísla a Intermedio en vez de compartirse porque en
+ * Principiante/Experto (touch-action:pinch-zoom, no "manipulation") CUALQUIER
+ * movimiento del dedo llega intacto hasta pointerup — el navegador no toma
+ * el gesto como scroll y cancela el puntero antes de tiempo, a diferencia
+ * de Intermedio — así que no se pudo descartar con confianza que un toque
+ * normal ahí nunca supere el umbral por simple imprecisión del dedo.
  */
 
 (function () {
@@ -30,7 +43,14 @@
     '</svg>';
 
   var DURACION_PULSACION_LARGA_MS = 400;
-  var TOLERANCIA_MOVIMIENTO_PX = 10; // si el dedo/puntero se mueve más que esto, se cancela la bandera (probablemente es scroll)
+  var TOLERANCIA_MOVIMIENTO_PX = 10; // Principiante/Experto, sin cambios: si el dedo se mueve más que esto, se cancela la bandera (probablemente es scroll)
+
+  // Ver comentario de cabecera del archivo. Solo Intermedio: umbral de
+  // movimiento entre pointerdown y pointerup para distinguir un toque real
+  // de un arrastre de página (scroll), y mismo umbral para cancelar el
+  // long-press de bandera si el dedo se mueve antes de completarse.
+  var ES_INTERMEDIO = document.body.classList.contains('nivel-intermedio');
+  var UMBRAL_MOVIMIENTO_INTERMEDIO_PX = 8;
 
   var elBoard = document.getElementById('bm-board');
   var elContadorMinas = document.getElementById('bm-contador-minas');
@@ -114,18 +134,25 @@
     }, DURACION_PULSACION_LARGA_MS);
   }
 
-  function onPointerMove(e) {
-    if (idTimeoutPulsacion === null || idxPulsacion === null) return;
+  function distanciaDesdeInicio(e) {
     var dx = e.clientX - inicioX;
     var dy = e.clientY - inicioY;
-    if (Math.sqrt(dx * dx + dy * dy) > TOLERANCIA_MOVIMIENTO_PX) {
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function onPointerMove(e) {
+    if (idTimeoutPulsacion === null || idxPulsacion === null) return;
+    var seMovioDemasiado = ES_INTERMEDIO
+      ? distanciaDesdeInicio(e) >= UMBRAL_MOVIMIENTO_INTERMEDIO_PX
+      : distanciaDesdeInicio(e) > TOLERANCIA_MOVIMIENTO_PX;
+    if (seMovioDemasiado) {
       // El dedo se ha movido demasiado: probablemente es un scroll, no una bandera.
       clearTimeout(idTimeoutPulsacion);
       idTimeoutPulsacion = null;
     }
   }
 
-  function onPointerUp() {
+  function onPointerUp(e) {
     clearTimeout(idTimeoutPulsacion);
     idTimeoutPulsacion = null;
 
@@ -136,6 +163,15 @@
     if (pulsacionEsBandera) {
       pulsacionEsBandera = false;
       return; // la pulsación larga ya se gestionó como bandera; no abrir la casilla
+    }
+
+    // Solo Intermedio (ver ES_INTERMEDIO arriba): si el dedo se movió 8px
+    // o más entre el pointerdown y este pointerup, es un arrastre de
+    // página, no un toque — no se abre ninguna casilla. No se ha llamado
+    // a preventDefault en ningún momento del gesto, así que el navegador
+    // sigue libre de gestionar el scroll con normalidad.
+    if (ES_INTERMEDIO && distanciaDesdeInicio(e) >= UMBRAL_MOVIMIENTO_INTERMEDIO_PX) {
+      return;
     }
 
     onClicNormal(idx);
